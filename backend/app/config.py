@@ -66,5 +66,8 @@ class Settings(BaseSettings):
     # Telegram: bot token for admin region notifications (set TELEGRAM_BOT_TOKEN in .env)
     telegram_bot_token: str = ""
 
+    # CORS: origins allowed to access the API (comma-separated in env, or default below)
+    cors_origins: str = "http://localhost:5173,http://localhost:3000,https://jelba.vercel.app"
+
 
 settings = Settings()

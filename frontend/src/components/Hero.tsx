@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Shield, CheckCircle } from 'lucide-react'
+import { ArrowRight, Shield, CheckCircle, LayoutDashboard } from 'lucide-react'
+
+const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
 
 const Hero: React.FC = () => {
   const { t } = useTranslation()
+  const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem(AUTH_TOKEN_KEY)
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white pt-24 pb-32 overflow-hidden">
       {/* Subtle background blobs */}
@@ -51,21 +54,36 @@ const Hero: React.FC = () => {
           {t('hero.subtitle')}
         </motion.p>
 
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14"
-        >
-          <Link to="/signup" className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
-            {t('hero.ctaStart')}
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1 transition-transform" />
-          </Link>
-          <Link to="/signin" className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 text-lg font-semibold rounded-xl border-2 border-gray-200 hover:border-teal-400 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 text-center">
-            {t('hero.ctaSignIn')}
-          </Link>
-        </motion.div>
+        {/* CTA Buttons — only when not authenticated */}
+        {!isLoggedIn && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14"
+          >
+            <Link to="/signup" className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
+              {t('hero.ctaStart')}
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1 transition-transform" />
+            </Link>
+            <Link to="/signin" className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 text-lg font-semibold rounded-xl border-2 border-gray-200 hover:border-teal-400 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 text-center">
+              {t('hero.ctaSignIn')}
+            </Link>
+          </motion.div>
+        )}
+        {isLoggedIn && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex justify-center mb-14"
+          >
+            <Link to="/dashboard" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 transition-all duration-300">
+              <LayoutDashboard className="w-5 h-5" />
+              {t('nav.dashboard')}
+            </Link>
+          </motion.div>
+        )}
 
         {/* Trust Indicators */}
         <motion.div
