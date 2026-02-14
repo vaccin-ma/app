@@ -22,5 +22,6 @@ class ChildVaccination(Base):
     remindable: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     voice_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    reminder_audio_path: Mapped[str | None] = mapped_column(String, nullable=True)
 
     child: Mapped["Child"] = relationship("Child", back_populates="vaccinations")
