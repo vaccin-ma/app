@@ -1,0 +1,87 @@
+import React from 'react'
+import { motion } from 'framer-motion'
+import { LogIn, Menu, X } from 'lucide-react'
+
+const Navigation: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-3 flex-shrink-0"
+          >
+            <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center shadow-md">
+              <span className="text-white font-bold text-xl">V</span>
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
+              VacciTrack
+            </span>
+          </motion.div>
+
+          {/* Desktop Navigation */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="hidden md:flex items-center gap-8"
+          >
+            <a href="#features" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
+              Features
+            </a>
+            <a href="#how-it-works" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
+              How It Works
+            </a>
+            <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
+              About
+            </a>
+            <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+              <LogIn size={18} />
+              <span>Sign In</span>
+            </button>
+          </motion.div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-gray-700 hover:text-teal-600 transition-colors"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden py-6 border-t border-gray-100"
+          >
+            <div className="flex flex-col space-y-4">
+              <a href="#features" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
+                Features
+              </a>
+              <a href="#how-it-works" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
+                How It Works
+              </a>
+              <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
+                About
+              </a>
+              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md">
+                <LogIn size={18} />
+                <span>Sign In</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+export default Navigation
