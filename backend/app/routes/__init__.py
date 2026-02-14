@@ -10,7 +10,4 @@ def api_root():
     return {"api": "v1", "status": "ok"}
 
 
-# Import and include route modules here, e.g.:
-# from app.routes import auth, users
-# router.include_router(auth.router, prefix="/auth", tags=["auth"])
-# router.include_router(users.router, prefix="/users", tags=["users"])
+from . import child_vaccination

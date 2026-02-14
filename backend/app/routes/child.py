@@ -19,6 +19,17 @@ from app.utils.dependencies import get_current_user
 
 router = APIRouter()
 
+# Vaccines due more than this many days before today are not remindable
+REMINDABLE_DAYS = 7
+
+
+def _is_remindable(due_date: date | None) -> bool:
+    """True if due_date is within REMINDABLE_DAYS before today or in the future."""
+    if due_date is None:
+        return True
+    cutoff = date.today() - timedelta(days=REMINDABLE_DAYS)
+    return due_date >= cutoff
+
 
 def _get_child_or_404(db: Session, child_id: int, parent: Parent) -> Child:
     child = db.query(Child).filter(
@@ -52,6 +63,7 @@ def create_child(
     if birthdate:
         for template in templates:
             due_date = birthdate + timedelta(days=template.offset_days)
+            remindable = _is_remindable(due_date)
             db.add(
                 ChildVaccination(
                     child_id=child.id,
@@ -59,6 +71,7 @@ def create_child(
                     period_label=template.period_label,
                     due_date=due_date,
                     completed=False,
+                    remindable=remindable,
                 )
             )
         db.commit()
@@ -76,18 +89,17 @@ def list_children(
     return children
 
 
-def _vaccination_status(due_date: date | None, completed: bool) -> str:
-    """Compute status: completed, due, overdue, upcoming."""
-    if completed:
-        return "completed"
-    if due_date is None:
-        return "upcoming"
+def _compute_status(vac: ChildVaccination) -> str:
+    """Computed status: completed, due, overdue, upcoming."""
     today = date.today()
-    if today == due_date:
+    if vac.completed:
+        return "completed"
+    elif vac.due_date == today:
         return "due"
-    if today > due_date:
+    elif vac.due_date is not None and vac.due_date < today:
         return "overdue"
-    return "upcoming"
+    else:
+        return "upcoming"
 
 
 @router.get("/{child_id}/timeline", response_model=list[VaccinationTimelineItem])
@@ -109,6 +121,7 @@ def get_child_timeline(
         templates = db.query(VaccineTemplate).all()
         for template in templates:
             due_date = child.birthdate + timedelta(days=template.offset_days)
+            remindable = _is_remindable(due_date)
             db.add(
                 ChildVaccination(
                     child_id=child.id,
@@ -116,6 +129,7 @@ def get_child_timeline(
                     period_label=template.period_label,
                     due_date=due_date,
                     completed=False,
+                    remindable=remindable,
                 )
             )
         db.commit()
@@ -127,12 +141,14 @@ def get_child_timeline(
         )
     return [
         VaccinationTimelineItem(
-            period_label=v.period_label,
+            id=v.id,
             vaccine_name=v.vaccine_name,
+            period_label=v.period_label,
             due_date=v.due_date,
             completed=v.completed,
             completed_at=v.completed_at,
-            status=_vaccination_status(v.due_date, v.completed),
+            status=_compute_status(v),
+            remindable=v.remindable,
         )
         for v in vaccinations
     ]

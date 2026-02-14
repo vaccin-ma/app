@@ -19,6 +19,7 @@ class ChildVaccination(Base):
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    remindable: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     voice_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 

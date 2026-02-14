@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
-from app.routes import auth, child, router as api_router
+from app.routes import auth, child, child_vaccination, router as api_router
 
 # Import all models so they register with Base (add new model imports in app.models.__init__)
 import app.models  # noqa: F401
@@ -32,6 +32,7 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api")
 app.include_router(auth.router)
 app.include_router(child.router, prefix="/children", tags=["Children"])
+app.include_router(child_vaccination.router, prefix="/vaccinations", tags=["Vaccinations"])
 
 # Root route
 @app.get("/")
