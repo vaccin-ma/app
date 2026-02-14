@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
@@ -31,7 +31,7 @@ const features = [
   }
 ]
 
-const Features: React.FC = () => {
+const Features = () => {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
 

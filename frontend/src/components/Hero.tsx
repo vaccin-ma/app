@@ -1,5 +1,5 @@
-import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { ArrowRight, Shield, CheckCircle } from 'lucide-react'
 
 const Hero: React.FC = () => {
@@ -57,13 +57,13 @@ const Hero: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14"
         >
-          <button className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
+          <Link to="/signup" className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
             Get Started Free
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-          <button className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 text-lg font-semibold rounded-xl border-2 border-gray-200 hover:border-teal-400 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300">
+          </Link>
+          <Link to="/signin" className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 text-lg font-semibold rounded-xl border-2 border-gray-200 hover:border-teal-400 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 text-center">
             Sign In
-          </button>
+          </Link>
         </motion.div>
 
         {/* Trust Indicators */}

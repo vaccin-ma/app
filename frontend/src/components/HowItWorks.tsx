@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
@@ -31,7 +31,7 @@ const steps = [
   }
 ]
 
-const HowItWorks: React.FC = () => {
+const HowItWorks = () => {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
 

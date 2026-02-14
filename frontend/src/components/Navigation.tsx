@@ -1,9 +1,10 @@
-import React from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { LogIn, Menu, X } from 'lucide-react'
 
-const Navigation: React.FC = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+const Navigation = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
@@ -14,14 +15,15 @@ const Navigation: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-3 flex-shrink-0"
           >
-            <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-xl">V</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-              VacciTrack
-            </span>
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+              <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-xl">V</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
+                VacciTrack
+              </span>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -40,10 +42,13 @@ const Navigation: React.FC = () => {
             <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
               About
             </a>
-            <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            <Link
+              to="/signin"
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
               <LogIn size={18} />
               <span>Sign In</span>
-            </button>
+            </Link>
           </motion.div>
 
           {/* Mobile Menu Button */}
@@ -72,10 +77,13 @@ const Navigation: React.FC = () => {
               <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
                 About
               </a>
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md">
+              <Link
+                to="/signin"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
+              >
                 <LogIn size={18} />
                 <span>Sign In</span>
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}

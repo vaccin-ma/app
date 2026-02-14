@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
@@ -35,7 +35,7 @@ const stats = [
   { value: '4.9/5', label: 'User Rating' }
 ]
 
-const Testimonials: React.FC = () => {
+const Testimonials = () => {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
 

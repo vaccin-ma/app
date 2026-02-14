@@ -1,23 +1,26 @@
-import React from 'react'
-import Navigation from './components/Navigation'
-import Hero from './components/Hero'
-import Features from './components/Features'
-import HowItWorks from './components/HowItWorks'
-import Testimonials from './components/Testimonials'
-import Footer from './components/Footer'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import LandingPage from './pages/LandingPage'
+import Signup from './pages/Signup'
+import Signin from './pages/Signin'
 import './App.css'
 
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <LandingPage />,
+  },
+  {
+    path: '/signup',
+    element: <Signup />,
+  },
+  {
+    path: '/signin',
+    element: <Signin />,
+  },
+])
+
 function App() {
-  return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <Testimonials />
-      <Footer />
-    </div>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
