@@ -31,11 +31,12 @@ URL="${MINIMAX_BASE_URL:-https://api.minimax.io}/v1/text/chatcompletion_v2"
 echo "POST $URL"
 echo ""
 
+# Use MiniMax-M2.5 (works with Coding Plan); M2-her is Pay-as-you-go only
 curl -s -X POST "$URL" \
   -H "Authorization: Bearer $MINIMAX_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "M2-her",
+    "model": "MiniMax-M2.5",
     "messages": [
       {"role": "system", "name": "MiniMax AI", "content": "You write very short reminders in Arabic Fusha for parents about child vaccines."},
       {"role": "user", "name": "User", "content": "Say hello in one short Arabic sentence."}

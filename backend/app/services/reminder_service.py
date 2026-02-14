@@ -63,9 +63,9 @@ def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date
         f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date_str}). "
         "One or two sentences only. Use only Arabic (الفصحى). Do not use English or dialect."
     )
-    # Message "name" is optional but included per Minimax doc example (M2-her)
+    # Message "name" is optional but included per Minimax doc example
     payload: dict[str, Any] = {
-        "model": "M2-her",
+        "model": settings.minimax_model,
         "messages": [
             {"role": "system", "name": "MiniMax AI", "content": "You write very short reminders in Arabic Fusha (الفصحى) for parents about child vaccines. Use only Modern Standard Arabic."},
             {"role": "user", "name": "User", "content": prompt},
