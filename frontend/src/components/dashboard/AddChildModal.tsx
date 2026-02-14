@@ -1,20 +1,38 @@
-import { useState, type FC, type FormEvent } from 'react'
+import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
-import type { CreateChildPayload } from '../../api/children'
+import { X, Trash2 } from 'lucide-react'
+import type { Child, CreateChildPayload } from '../../api/children'
 
 interface AddChildModalProps {
   onClose: () => void
   onSubmit: (payload: CreateChildPayload) => Promise<unknown>
+  /** When set, modal is in edit mode: prefilled with child data and submit updates instead of create. */
+  initialChild?: Child | null
+  /** Called when user confirms delete in edit mode. */
+  onDelete?: (child: Child) => Promise<unknown>
 }
 
-export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => {
+export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initialChild, onDelete }) => {
   const { t } = useTranslation()
+  const isEdit = !!initialChild
   const [name, setName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [gender, setGender] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (initialChild) {
+      setName(initialChild.name)
+      setBirthdate(initialChild.birthdate ? initialChild.birthdate.slice(0, 10) : '')
+      setGender(initialChild.gender ?? '')
+    } else {
+      setName('')
+      setBirthdate('')
+      setGender('')
+    }
+  }, [initialChild])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -24,13 +42,28 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
       await onSubmit({ name, birthdate, gender: gender || null })
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('addChildModal.errorDefault'))
+      setError(err instanceof Error ? err.message : t(isEdit ? 'addChildModal.errorUpdate' : 'addChildModal.errorDefault'))
     } finally {
       setLoading(false)
     }
   }
 
   const genderOptions = [t('addChildModal.male'), t('addChildModal.female')]
+
+  const handleDelete = async () => {
+    if (!initialChild || !onDelete) return
+    if (!window.confirm(t('addChildModal.deleteConfirm'))) return
+    setError('')
+    setDeleting(true)
+    try {
+      await onDelete(initialChild)
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('addChildModal.errorDelete'))
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
@@ -39,7 +72,9 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">{t('addChildModal.title')}</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            {isEdit ? t('addChildModal.updateTitle') : t('addChildModal.title')}
+          </h2>
           <button type="button" onClick={onClose} className="p-2 text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
@@ -67,9 +102,11 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
               type="date"
               value={birthdate}
               onChange={(e) => setBirthdate(e.target.value)}
-              required
+              required={!isEdit}
               max={new Date().toISOString().split('T')[0]}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              readOnly={isEdit}
+              className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent ${isEdit ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+              title={isEdit ? t('addChildModal.birthdateLocked') : undefined}
             />
           </div>
           <div>
@@ -101,12 +138,27 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
             </button>
             <button
               type="submit"
-              disabled={loading || !name || !birthdate}
+              disabled={loading || !name || (!isEdit && !birthdate)}
               className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 disabled:opacity-50"
             >
-              {loading ? t('addChildModal.adding') : t('addChildModal.add')}
+              {loading
+                ? (isEdit ? t('addChildModal.saving') : t('addChildModal.adding'))
+                : (isEdit ? t('addChildModal.save') : t('addChildModal.add'))}
             </button>
           </div>
+          {isEdit && onDelete && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={loading || deleting}
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-red-600 hover:bg-red-50 rounded-xl font-medium disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                {deleting ? t('addChildModal.deleting') : t('addChildModal.deleteChild')}
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

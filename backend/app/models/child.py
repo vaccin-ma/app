@@ -23,6 +23,8 @@ class Child(Base):
 
     parent: Mapped["Parent"] = relationship("Parent", back_populates="children")
     vaccinations: Mapped[list["ChildVaccination"]] = relationship(
-        "ChildVaccination", back_populates="child"
+        "ChildVaccination",
+        back_populates="child",
+        cascade="all, delete-orphan",
     )
 

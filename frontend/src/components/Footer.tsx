@@ -13,10 +13,10 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-400 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">V</span>
+                <span className="text-white font-bold text-2xl">J</span>
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
-                VacciTrack
+                jelba.ma
               </span>
             </div>
             <p className="text-gray-400 text-lg mb-6 max-w-md leading-relaxed">
@@ -46,9 +46,9 @@ const Footer = () => {
             <h4 className="font-bold text-lg mb-6 text-white">{t('footer.contact')}</h4>
             <ul className="space-y-4">
               <li>
-                <a href="mailto:support@vaccitrack.ma" className="flex items-start gap-3 text-gray-400 hover:text-teal-400 transition-colors duration-300 group">
+                <a href="mailto:support@jelba.ma" className="flex items-start gap-3 text-gray-400 hover:text-teal-400 transition-colors duration-300 group">
                   <Mail size={20} className="text-teal-400 mt-0.5 flex-shrink-0" />
-                  <span className="group-hover:underline">support@vaccitrack.ma</span>
+                  <span className="group-hover:underline">support@jelba.ma</span>
                 </a>
               </li>
               <li>

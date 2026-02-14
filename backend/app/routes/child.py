@@ -171,7 +171,7 @@ def update_child(
     db: Session = Depends(get_db),
     current_user: Parent = Depends(get_current_user),
 ):
-    """Update child info. Only if belongs to parent."""
+    """Update child info. Only if belongs to parent. Name and gender only; birthdate cannot be changed."""
     child = _get_child_or_404(db, child_id, current_user)
     update_data = payload.model_dump(exclude_unset=True)
     for field, value in update_data.items():

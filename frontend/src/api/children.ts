@@ -60,6 +60,11 @@ export interface CreateChildPayload {
   gender?: string | null
 }
 
+export interface UpdateChildPayload {
+  name?: string
+  gender?: string | null
+}
+
 export async function createChild(payload: CreateChildPayload): Promise<Child> {
   const res = await fetch(`${API_BASE}/children/`, {
     method: 'POST',
@@ -71,4 +76,30 @@ export async function createChild(payload: CreateChildPayload): Promise<Child> {
     }),
   })
   return handleRes<Child>(res)
+}
+
+export async function updateChild(
+  childId: number,
+  payload: UpdateChildPayload
+): Promise<Child> {
+  const body: Record<string, unknown> = {}
+  if (payload.name !== undefined) body.name = payload.name
+  if (payload.gender !== undefined) body.gender = payload.gender ?? null
+  const res = await fetch(`${API_BASE}/children/${childId}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify(body),
+  })
+  return handleRes<Child>(res)
+}
+
+export async function deleteChild(childId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/children/${childId}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error((data as ApiError).detail || res.statusText)
+  }
 }

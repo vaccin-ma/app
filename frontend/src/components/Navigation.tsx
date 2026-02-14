@@ -24,10 +24,10 @@ const Navigation = () => {
           >
             <Link to="/" className="flex items-center gap-3 flex-shrink-0">
               <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-xl">V</span>
+                <span className="text-white font-bold text-xl">J</span>
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-                VacciTrack
+                jelba.ma
               </span>
             </Link>
           </motion.div>

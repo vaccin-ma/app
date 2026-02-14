@@ -1,4 +1,4 @@
-# 🛡️ VacciTrack Morocco — Frontend
+# 🛡️ jelba.ma — Frontend
 
 A modern landing page for a B2C vaccination tracking app built for the Moroccan National Immunization Program (PNI).
 

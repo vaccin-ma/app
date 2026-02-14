@@ -185,7 +185,7 @@ const Signup: FC = () => {
             <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-3xl">V</span>
             </div>
-            <span className="text-3xl font-bold">VacciTrack</span>
+            <span className="text-3xl font-bold">jelba.ma</span>
           </Link>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
@@ -212,10 +212,10 @@ const Signup: FC = () => {
           {/* Mobile logo */}
           <Link to="/" className="lg:hidden flex items-center gap-2 justify-center mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">V</span>
+              <span className="text-white font-bold text-xl">J</span>
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-              VacciTrack
+              jelba.ma
             </span>
           </Link>
 

@@ -19,10 +19,11 @@ const Dashboard: FC = () => {
   const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_KEYS.TOKEN) : null
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [addModalOpen, setAddModalOpen] = useState(false)
+  const [editChild, setEditChild] = useState<Child | null>(null)
 
   const { dir } = useLanguage()
   const { t } = useTranslation()
-  const { children, loading, error, refetch, addChild } = useChildren({ enabled: !!token })
+  const { children, loading, error, refetch, addChild, updateChild, deleteChild } = useChildren({ enabled: !!token })
   const { items, loading: timelineLoading, error: timelineError, markCompletePeriod } = useTimeline(
     selectedChild?.id ?? null
   )
@@ -45,9 +46,9 @@ const Dashboard: FC = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">V</span>
+                <span className="text-white font-bold text-xl">J</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">VacciTrack</span>
+              <span className="text-xl font-bold text-gray-900">jelba.ma</span>
             </Link>
             <div className="flex items-center gap-3">
               <LanguageSwitcher />
@@ -143,7 +144,7 @@ const Dashboard: FC = () => {
                     key={child.id}
                     child={child}
                     onViewTimeline={setSelectedChild}
-                    onUpdate={() => {}}
+                    onUpdate={setEditChild}
                   />
                 ))}
               </div>
@@ -157,6 +158,25 @@ const Dashboard: FC = () => {
           onClose={() => setAddModalOpen(false)}
           onSubmit={async (payload) => {
             await addChild(payload)
+            refetch()
+          }}
+        />
+      )}
+
+      {editChild && (
+        <AddChildModal
+          initialChild={editChild}
+          onClose={() => setEditChild(null)}
+          onSubmit={async (payload) => {
+            await updateChild(editChild.id, {
+              name: payload.name,
+              gender: payload.gender ?? null,
+            })
+            refetch()
+          }}
+          onDelete={async () => {
+            await deleteChild(editChild.id)
+            setEditChild(null)
             refetch()
           }}
         />
