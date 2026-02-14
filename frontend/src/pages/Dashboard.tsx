@@ -11,7 +11,7 @@ import { useChildren } from '../hooks/useChildren'
 import { useTimeline } from '../hooks/useTimeline'
 import type { Child } from '../api/children'
 import { ChildCard } from '../components/dashboard/ChildCard'
-import { VaccinationJourney } from '../components/dashboard/VaccinationJourney'
+import { Timeline } from '../components/dashboard/Timeline'
 import { VaccineFamilyChart } from '../components/dashboard/VaccineFamilyChart'
 import { AddChildModal } from '../components/dashboard/AddChildModal'
 
@@ -90,7 +90,7 @@ const Dashboard: FC = () => {
               <span className="rtl:rotate-180"><ChevronRight className="w-5 h-5" /></span>
               {t('dashboard.backToChildren')}
             </button>
-            <VaccinationJourney
+            <Timeline
               items={items}
               loading={timelineLoading}
               error={timelineError}

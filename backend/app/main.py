@@ -11,8 +11,8 @@ import app.models  # noqa: F401
 
 # Create tables automatically on startup
 Base.metadata.create_all(bind=engine)
-from app.database import ensure_reminder_audio_column
-ensure_reminder_audio_column()
+from app.database import ensure_sqlite_columns
+ensure_sqlite_columns()
 
 # Seed Morocco 2025 PNI schedule (no-op if already seeded)
 from app.services.seed_vaccine_templates import seed_vaccine_templates

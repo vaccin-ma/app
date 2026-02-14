@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Volume2, Syringe, ChevronRight, Shield, Info } from 'lucide-react'
+import { Volume2, ChevronRight, Shield, Info } from 'lucide-react'
 import clsx from 'clsx'
 
 /* ── vaccine families ────────────────────────────────────────────── */
