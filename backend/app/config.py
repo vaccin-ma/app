@@ -60,5 +60,8 @@ class Settings(BaseSettings):
     # Media: directory for storing reminder audio (relative to backend root or absolute)
     reminder_media_dir: str = "media/reminders"
 
+    # Telegram: bot token for admin region notifications (set TELEGRAM_BOT_TOKEN in .env)
+    telegram_bot_token: str = ""
+
 
 settings = Settings()

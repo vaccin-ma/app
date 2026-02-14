@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, Volume2, ExternalLink, Play, Pause, Trash2 } from 'lucide-react'
+import { Bell, ExternalLink, Play, Pause, Trash2 } from 'lucide-react'
 import { API_BASE } from '../../api/auth'
 import { getNotifications, deleteNotification, type NotificationItem } from '../../api/notifications'
 

@@ -8,15 +8,15 @@
         "logOut": "Log Out"
     },
     "hero": {
-        "badge": "Trusted by 10,000+ Moroccan families",
+        "badge": "Trusted by Moroccan families",
         "title1": "Protect Their Future,",
         "title2": "One Dose at a Time",
-        "subtitle": "Track your child's journey through the Moroccan National Immunization Program. Automated voice reminders so you never miss an appointment.",
-        "ctaStart": "Get Started Free",
+        "subtitle": "A simple app for parents to track their children's vaccinations. Automated voice reminders so you never miss an appointment. B2C service — not part of the official national program.",
+        "ctaStart": "Get Started",
         "ctaSignIn": "Sign In",
-        "trust1": "100% Free",
+        "trust1": "First 2 children free",
         "trust2": "Data protection compliant",
-        "trust3": "PNI certified"
+        "trust3": "For parents & families"
     },
     "features": {
         "badge": "Features",
@@ -25,11 +25,11 @@
         "subtitle": "Comprehensive tools designed for busy parents who care about their children's health",
         "learnMore": "Learn more",
         "item0Title": "Smart Tracking",
-        "item0Desc": "Automated schedule based on the PNI. Never manually calculate vaccine dates again.",
+        "item0Desc": "Automated schedule aligned with common vaccination recommendations. Never manually calculate vaccine dates again.",
         "item1Title": "Voice Reminders",
         "item1Desc": "Automatic calls when a dose is due. Reminders that fit your schedule.",
         "item2Title": "Multi-Child Management",
-        "item2Desc": "One account for the family. Track all your children's vaccination records in one secure place."
+        "item2Desc": "First 2 children free. Add more with a paid plan — one account for the whole family."
     },
     "howItWorks": {
         "badge": "How It Works",
@@ -58,7 +58,7 @@
         "text1": "Managing vaccinations for three kids was overwhelming. VacciTrack made it simple and stress-free. Highly recommended for all parents!",
         "name2": "Samira Alaoui",
         "role2": "Mother of 1 · Marrakech",
-        "text2": "The automated tracking based on the PNI is brilliant. I love that everything is in one place and so easy to access.",
+        "text2": "The automated tracking is brilliant. I love that everything is in one place and so easy to access.",
         "stat0Label": "Active Families",
         "stat1Label": "Tracked Vaccines",
         "stat2Label": "On-Time Rate",
@@ -95,13 +95,13 @@
         "submit": "Sign In",
         "signingIn": "Signing in…",
         "noAccount": "Don't have an account?",
-        "createFree": "Create one for free",
+        "createFree": "Create an account",
         "errorDefault": "Sign in failed"
     },
     "signup": {
         "joinTitle": "Join thousands of Moroccan families",
-        "joinDesc": "Create your free account and start tracking your child's vaccination journey today.",
-        "bullet0": "Smart PNI-based schedule",
+        "joinDesc": "Create your account. Track your first 2 children for free; add more with a paid plan.",
+        "bullet0": "Smart schedule for parents",
         "bullet1": "Voice reminders via ElevenLabs",
         "bullet2": "Multi-child management",
         "formTitle": "Create your account",
@@ -114,6 +114,8 @@
         "phone": "Phone Number",
         "city": "City",
         "selectCity": "Select your city",
+        "region": "Region",
+        "selectRegion": "Select your region",
         "password": "Password",
         "passwordPlaceholder": "Min 8 characters",
         "confirmPassword": "Confirm Password",

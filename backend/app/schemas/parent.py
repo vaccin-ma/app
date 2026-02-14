@@ -10,6 +10,7 @@ class ParentCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=1, max_length=256)
     phone_number: str | None = None
+    region_id: int | None = None
 
 
 class ParentLogin(BaseModel):
@@ -25,6 +26,8 @@ class ParentResponse(BaseModel):
     email: str
     phone_number: str | None
     preferred_language: str | None
+    is_admin: bool = False
+    region_id: int | None
     created_at: datetime
 
 

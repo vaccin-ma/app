@@ -22,6 +22,7 @@ def register(parent_in: ParentCreate, db: Session = Depends(get_db)):
         email=parent_in.email,
         password_hash=hash_password(parent_in.password),
         phone_number=parent_in.phone_number,
+        region_id=parent_in.region_id,
     )
     db.add(parent)
     db.commit()

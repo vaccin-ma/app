@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LogIn, Menu, X, LayoutDashboard } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { Logo } from './Logo'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
@@ -11,6 +12,7 @@ const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
 const Navigation = () => {
   const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // Read token on every render so Admin/Dashboard show immediately after login
   const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem(AUTH_TOKEN_KEY)
   const { dir } = useLanguage()
   const xDir = dir === 'rtl' ? 1 : -1
@@ -25,14 +27,7 @@ const Navigation = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-xl">J</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-                jelba.ma
-              </span>
-            </Link>
+            <Logo className="h-10 w-auto object-contain" />
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -53,13 +48,21 @@ const Navigation = () => {
               {t('nav.about')}
             </a>
             {isLoggedIn ? (
-              <Link
-                to="/dashboard"
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-              >
-                <LayoutDashboard size={18} />
-                <span>{t('nav.dashboard')}</span>
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-2 px-5 py-2.5 text-gray-700 hover:text-teal-600 font-medium transition-colors"
+                >
+                  <LayoutDashboard size={18} />
+                  <span>{t('nav.dashboard')}</span>
+                </Link>
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+                >
+                  Admin
+                </Link>
+              </>
             ) : (
               <Link
                 to="/signin"
@@ -101,13 +104,21 @@ const Navigation = () => {
                 {t('nav.about')}
               </a>
               {isLoggedIn ? (
-                <Link
-                  to="/dashboard"
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
-                >
-                  <LayoutDashboard size={18} />
-                  <span>{t('nav.dashboard')}</span>
-                </Link>
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-800 font-semibold rounded-lg"
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>{t('nav.dashboard')}</span>
+                  </Link>
+                  <Link
+                    to="/admin"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
+                  >
+                    Admin
+                  </Link>
+                </>
               ) : (
                 <Link
                   to="/signin"

@@ -3,6 +3,7 @@ import type { FC, FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Logo } from '../components/Logo'
 import { Mail, Lock, Eye, EyeOff, LogIn, Shield } from 'lucide-react'
 import { login, saveToken, updatePreferredLanguage } from '../api/auth'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -45,12 +46,9 @@ const Signin: FC = () => {
         </div>
 
         <div className="relative text-white text-center max-w-md">
-          <Link to="/" className="inline-flex items-center gap-3 mb-10">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-3xl">V</span>
-            </div>
-            <span className="text-3xl font-bold">jelba.ma</span>
-          </Link>
+          <div className="mb-10">
+            <Logo className="h-12 w-auto object-contain [filter:brightness(0)_invert(1)]" />
+          </div>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
             {t('signin.welcome')}
@@ -75,14 +73,9 @@ const Signin: FC = () => {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
-          <Link to="/" className="lg:hidden flex items-center gap-2 justify-center mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">J</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-              jelba.ma
-            </span>
-          </Link>
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo className="h-10 w-auto object-contain" />
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

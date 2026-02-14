@@ -58,11 +58,14 @@ def create_child(
     current_user: Parent = Depends(get_current_user),
 ):
     """Create new child for current parent and schedule vaccinations from templates."""
+    # Child inherits parent's region if region_id not provided
+    region_id = payload.region_id if payload.region_id is not None else getattr(current_user, "region_id", None)
     child = Child(
         parent_id=current_user.id,
         name=payload.name,
         birthdate=payload.birthdate,
         gender=payload.gender,
+        region_id=region_id,
     )
     db.add(child)
     db.commit()

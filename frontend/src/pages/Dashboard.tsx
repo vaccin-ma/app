@@ -7,6 +7,7 @@ import { AUTH_KEYS, clearToken } from '../api/auth'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../contexts/LanguageContext'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { Logo } from '../components/Logo'
 import { useChildren } from '../hooks/useChildren'
 import { useTimeline } from '../hooks/useTimeline'
 import type { Child } from '../api/children'
@@ -57,12 +58,7 @@ const Dashboard: FC = () => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">J</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">jelba.ma</span>
-            </Link>
+            <Logo className="h-9 w-auto object-contain" />
             <div className="flex items-center gap-3">
               <NotificationBell
                 onViewTimeline={(childId) => {

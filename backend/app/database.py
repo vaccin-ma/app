@@ -60,10 +60,26 @@ def ensure_sqlite_columns() -> None:
         )
         if r.fetchone() is None:
             conn.execute(text("ALTER TABLE child_vaccinations ADD COLUMN reminder_audio_path TEXT"))
-        # parents: add preferred_language if missing
+        # parents: add preferred_language, is_admin, region_id if missing
         r = conn.execute(
             text("SELECT 1 FROM pragma_table_info('parents') WHERE name = 'preferred_language'")
         )
         if r.fetchone() is None:
             conn.execute(text("ALTER TABLE parents ADD COLUMN preferred_language TEXT"))
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('parents') WHERE name = 'is_admin'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE parents ADD COLUMN is_admin INTEGER DEFAULT 0"))
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('parents') WHERE name = 'region_id'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE parents ADD COLUMN region_id INTEGER REFERENCES regions(id)"))
+        # children: add region_id if missing
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('children') WHERE name = 'region_id'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE children ADD COLUMN region_id INTEGER REFERENCES regions(id)"))
         conn.commit()

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Heart, Mail, Phone, MapPin } from 'lucide-react'
+import { Logo } from './Logo'
 
 const Footer = () => {
   const { t } = useTranslation()
@@ -11,13 +12,8 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-400 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">J</span>
-              </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
-                jelba.ma
-              </span>
+            <div className="mb-6">
+              <Logo className="h-12 w-auto object-contain [filter:brightness(0)_invert(1)]" />
             </div>
             <p className="text-gray-400 text-lg mb-6 max-w-md leading-relaxed">
               {t('footer.tagline')}

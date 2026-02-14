@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import type { FC, ElementType, FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
@@ -9,14 +9,16 @@ import {
 import { useTranslation } from 'react-i18next'
 import { register, login, saveToken, updatePreferredLanguage } from '../api/auth'
 import { createChild } from '../api/children'
+import { getRegions, type Region } from '../api/regions'
 import { useLanguage } from '../contexts/LanguageContext'
+import { Logo } from '../components/Logo'
 
 /* ─── types ─── */
 interface ParentData {
   fullName: string
   email: string
   phone: string
-  city: string
+  regionId: string
   password: string
   confirmPassword: string
 }
@@ -27,14 +29,6 @@ interface ChildData {
   dateOfBirth: string
   gender: string
 }
-
-/* ─── cities ─── */
-const moroccoCities = [
-  'Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir',
-  'Meknès', 'Oujda', 'Kenitra', 'Tétouan', 'Salé', 'Nador',
-  'Mohammedia', 'El Jadida', 'Béni Mellal', 'Khouribga',
-  'Ouarzazate', 'Settat', 'Safi', 'Laayoune', 'Other'
-]
 
 /* ─── step indicator ─── */
 const StepIndicator: FC<{ current: number; total: number }> = ({ current, total }) => (
@@ -108,14 +102,19 @@ const Signup: FC = () => {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [parent, setParent] = useState<ParentData>({
-    fullName: '', email: '', phone: '', city: '', password: '', confirmPassword: ''
+    fullName: '', email: '', phone: '', regionId: '', password: '', confirmPassword: ''
   })
   const [child, setChild] = useState<ChildData>({
     firstName: '', lastName: '', dateOfBirth: '', gender: ''
   })
+  const [regions, setRegions] = useState<Region[]>([])
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    getRegions().then(setRegions).catch(() => setRegions([]))
+  }, [])
 
   const updateParent = (field: keyof ParentData) => (v: string) =>
     setParent(prev => ({ ...prev, [field]: v }))
@@ -124,7 +123,7 @@ const Signup: FC = () => {
 
   const canProceed = () => {
     if (step === 0) {
-      return parent.fullName && parent.email && parent.phone && parent.city && parent.password && parent.password === parent.confirmPassword
+      return parent.fullName && parent.email && parent.phone && parent.regionId && parent.password && parent.password === parent.confirmPassword
     }
     if (step === 1) {
       return child.firstName && child.lastName && child.dateOfBirth && child.gender
@@ -143,6 +142,7 @@ const Signup: FC = () => {
         email: parent.email,
         password: parent.password,
         phone_number: parent.phone || null,
+        region_id: parent.regionId ? Number(parent.regionId) : null,
       })
       const { access_token, token_type } = await login({
         email: parent.email,
@@ -183,12 +183,9 @@ const Signup: FC = () => {
         </div>
 
         <div className="relative text-white text-center max-w-md">
-          <Link to="/" className="inline-flex items-center gap-3 mb-10">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-3xl">V</span>
-            </div>
-            <span className="text-3xl font-bold">jelba.ma</span>
-          </Link>
+          <div className="mb-10">
+            <Logo className="h-12 w-auto object-contain [filter:brightness(0)_invert(1)]" />
+          </div>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
             {t('signup.joinTitle')}
@@ -212,14 +209,9 @@ const Signup: FC = () => {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-lg">
           {/* Mobile logo */}
-          <Link to="/" className="lg:hidden flex items-center gap-2 justify-center mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-400 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">J</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-500 bg-clip-text text-transparent">
-              jelba.ma
-            </span>
-          </Link>
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo className="h-10 w-auto object-contain" />
+          </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
             {t('signup.formTitle')}
@@ -247,15 +239,15 @@ const Signup: FC = () => {
                   <FormInput icon={Phone} label={t('signup.phone')} type="tel" placeholder="+212 6XX-XXXXXX" value={parent.phone} onChange={updateParent('phone')} />
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.city')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.region')}</label>
                     <select
-                      value={parent.city}
-                      onChange={e => updateParent('city')(e.target.value)}
+                      value={parent.regionId}
+                      onChange={e => updateParent('regionId')(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
                       required
                     >
-                      <option value="">{t('signup.selectCity')}</option>
-                      {moroccoCities.map(c => <option key={c} value={c}>{c}</option>)}
+                      <option value="">{t('signup.selectRegion')}</option>
+                      {regions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                     </select>
                   </div>
 
@@ -330,7 +322,7 @@ const Signup: FC = () => {
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{parent.fullName}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.email')}</dt><dd className="font-medium text-gray-900">{parent.email}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.phoneLabel')}</dt><dd className="font-medium text-gray-900">{parent.phone}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.city')}</dt><dd className="font-medium text-gray-900">{parent.city}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.region')}</dt><dd className="font-medium text-gray-900">{regions.find(r => r.id === Number(parent.regionId))?.name ?? '—'}</dd></div>
                     </dl>
                   </div>
 

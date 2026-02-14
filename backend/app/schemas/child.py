@@ -8,6 +8,7 @@ class ChildCreate(BaseModel):
     name: str
     birthdate: date
     gender: str | None = None
+    region_id: int | None = None
 
 
 class ChildUpdate(BaseModel):
@@ -24,6 +25,7 @@ class ChildResponse(BaseModel):
     name: str
     birthdate: date | None
     gender: str | None
+    region_id: int | None
     created_at: datetime
 
 

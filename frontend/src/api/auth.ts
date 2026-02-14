@@ -27,6 +27,7 @@ export interface RegisterPayload {
   email: string
   password: string
   phone_number?: string | null
+  region_id?: number | null
 }
 
 export interface RegisterResponse {
@@ -71,6 +72,7 @@ export async function register(
       email: payload.email,
       password: payload.password,
       phone_number: payload.phone_number || null,
+      region_id: payload.region_id ?? null,
     }),
   })
   const data = (await res.json()) as RegisterResponse | ApiError
@@ -100,6 +102,8 @@ export interface MeResponse {
   email: string
   phone_number: string | null
   preferred_language: string | null
+  is_admin?: boolean
+  region_id: number | null
   created_at: string
 }
 

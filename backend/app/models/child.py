@@ -17,11 +17,16 @@ class Child(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     birthdate: Mapped[date | None] = mapped_column(Date, nullable=True)
     gender: Mapped[str | None] = mapped_column(String, nullable=True)
+    # Region for immunity monitor; inherits from parent.region_id if null
+    region_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("regions.id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
 
     parent: Mapped["Parent"] = relationship("Parent", back_populates="children")
+    region: Mapped["Region | None"] = relationship("Region", back_populates="children")
     vaccinations: Mapped[list["ChildVaccination"]] = relationship(
         "ChildVaccination",
         back_populates="child",

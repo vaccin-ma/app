@@ -8,13 +8,13 @@
     "logOut": "Déconnexion"
   },
   "hero": {
-    "badge": "Approuvé par plus de 10 000 familles marocaines",
+    "badge": "Approuvé par les familles marocaines",
     "title1": "Protégez leur avenir,",
     "title2": "une dose à la fois",
-    "subtitle": "Suivez le parcours vaccinal de votre enfant. Rappels vocaux automatiques pour ne manquer aucun rendez-vous. Pour les parents — simple, confidentiel, sans démarche institutionnelle.",
-    "ctaStart": "Commencer — premier enfant gratuit",
+    "subtitle": "Une application simple pour les parents : suivez les vaccins de vos enfants. Rappels vocaux automatiques pour ne manquer aucun rendez-vous. Service B2C — non rattaché au programme national officiel.",
+    "ctaStart": "Commencer",
     "ctaSignIn": "Connexion",
-    "trust1": "Premier enfant gratuit",
+    "trust1": "2 premiers enfants gratuits",
     "trust2": "Conforme à la protection des données",
     "trust3": "Pour les parents et les familles"
   },
@@ -25,11 +25,11 @@
     "subtitle": "Des outils complets conçus pour les parents occupés qui se soucient de la santé de leurs enfants",
     "learnMore": "En savoir plus",
     "item0Title": "Suivi intelligent",
-    "item0Desc": "Calendrier automatique aligné sur les recommandations nationales. Plus besoin de calculer les dates à la main.",
+    "item0Desc": "Calendrier automatique aligné sur les recommandations courantes. Plus besoin de calculer les dates à la main.",
     "item1Title": "Rappels vocaux",
     "item1Desc": "Appels automatiques quand une dose est due. Des rappels qui s'adaptent à votre emploi du temps.",
     "item2Title": "Gestion multi-enfants",
-    "item2Desc": "Premier enfant suivi gratuitement. Ajoutez d'autres enfants avec un forfait payant — un compte pour toute la famille."
+    "item2Desc": "2 premiers enfants gratuits. Ajoutez d'autres avec un forfait payant — un compte pour toute la famille."
   },
   "howItWorks": {
     "badge": "Comment ça marche",
@@ -100,8 +100,8 @@
   },
   "signup": {
     "joinTitle": "Rejoignez des milliers de<br/>familles marocaines",
-    "joinDesc": "Créez votre compte et suivez votre premier enfant gratuitement. Ajoutez d'autres enfants avec un forfait payant.",
-    "bullet0": "Calendrier intelligent aligné sur les recommandations nationales",
+    "joinDesc": "Créez votre compte. Suivez vos 2 premiers enfants gratuitement ; ajoutez d'autres avec un forfait payant.",
+    "bullet0": "Calendrier intelligent pour les parents",
     "bullet1": "Rappels vocaux via ElevenLabs",
     "bullet2": "Gestion multi-enfants",
     "formTitle": "Créer votre compte",
@@ -114,6 +114,8 @@
     "phone": "Numéro de téléphone",
     "city": "Ville",
     "selectCity": "Choisissez votre ville",
+    "region": "Région",
+    "selectRegion": "Choisissez votre région",
     "password": "Mot de passe",
     "passwordPlaceholder": "Min. 8 caractères",
     "confirmPassword": "Confirmer le mot de passe",
