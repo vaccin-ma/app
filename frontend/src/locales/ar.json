@@ -201,6 +201,16 @@
         "daysUntil": "خلال {{count}} أيام",
         "today": "اليوم"
     },
+    "notifications": {
+        "title": "الإشعارات",
+        "voiceReminders": "تذكيرات صوتية",
+        "play": "تشغيل",
+        "pause": "إيقاف",
+        "viewInTimeline": "عرض في الجدول",
+        "delete": "حذف",
+        "empty": "لا توجد تذكيرات صوتية بعد.",
+        "loading": "جاري التحميل…"
+    },
     "families": {
         "title": "عائلات اللقاحات",
         "subtitle": "تعرف على كل لقاح واستمع إلى وصفه",

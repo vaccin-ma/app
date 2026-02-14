@@ -201,6 +201,16 @@
         "daysUntil": "In {{count}} days",
         "today": "Today"
     },
+    "notifications": {
+        "title": "Notifications",
+        "voiceReminders": "Voice reminders",
+        "play": "Play",
+        "pause": "Pause",
+        "viewInTimeline": "View in timeline",
+        "delete": "Delete",
+        "empty": "No voice reminders yet.",
+        "loading": "Loading…"
+    },
     "families": {
         "title": "Vaccine Families",
         "subtitle": "Learn about each vaccine and listen to its description",

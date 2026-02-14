@@ -208,7 +208,6 @@ export const VaccineCard: FC<VaccineCardProps> = ({
             >
               <Volume2 className="w-4 h-4" />
               <span>{t('journey.testVoice')}</span>
-              {/* animated waveform bars */}
               <span className="flex items-end gap-0.5 h-4">
                 {[1, 2, 3, 4].map(i => (
                   <motion.span

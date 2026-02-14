@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FC } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Baby, Plus, LogOut, ChevronRight } from 'lucide-react'
 import { AUTH_KEYS, clearToken } from '../api/auth'
@@ -14,9 +14,11 @@ import { ChildCard } from '../components/dashboard/ChildCard'
 import { Timeline } from '../components/dashboard/Timeline'
 import { VaccineFamilyChart } from '../components/dashboard/VaccineFamilyChart'
 import { AddChildModal } from '../components/dashboard/AddChildModal'
+import { NotificationBell } from '../components/dashboard/NotificationBell'
 
 const Dashboard: FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_KEYS.TOKEN) : null
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -28,6 +30,16 @@ const Dashboard: FC = () => {
   const { items, loading: timelineLoading, error: timelineError, markCompletePeriod } = useTimeline(
     selectedChild?.id ?? null
   )
+
+  // Open timeline for a child when coming from notification "View in timeline"
+  const selectChildId = (location.state as { selectChildId?: number } | null)?.selectChildId
+  useEffect(() => {
+    if (selectChildId && children.length > 0) {
+      const child = children.find((c) => c.id === selectChildId)
+      if (child) setSelectedChild(child)
+      window.history.replaceState({}, '', location.pathname)
+    }
+  }, [selectChildId, children])
 
   const handleLogout = () => {
     clearToken()
@@ -52,6 +64,12 @@ const Dashboard: FC = () => {
               <span className="text-xl font-bold text-gray-900">jelba.ma</span>
             </Link>
             <div className="flex items-center gap-3">
+              <NotificationBell
+                onViewTimeline={(childId) => {
+                  const child = children.find((c) => c.id === childId)
+                  if (child) setSelectedChild(child)
+                }}
+              />
               <LanguageSwitcher />
               <button
                 type="button"
@@ -163,6 +181,9 @@ const Dashboard: FC = () => {
           onSubmit={async (payload) => {
             await addChild(payload)
             refetch()
+            // Voice reminders are created in background; ask notification bell to refetch after a delay
+            setTimeout(() => window.dispatchEvent(new CustomEvent('notifications-refresh')), 5000)
+            setTimeout(() => window.dispatchEvent(new CustomEvent('notifications-refresh')), 15000)
           }}
         />
       )}

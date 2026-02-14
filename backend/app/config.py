@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     # Reminder service: ElevenLabs voice (optional) — set via .env
     elevenlabs_api_key: str = ""
     elevenlabs_voice_id: str = "oUCSlKjkoFDoKamPHpAV"
+    # Per-language voice IDs for notifications (fallback to elevenlabs_voice_id if not set)
+    elevenlabs_voice_id_ar: str = ""
+    elevenlabs_voice_id_fr: str = ""
+    elevenlabs_voice_id_en: str = ""
     reminder_send_voice: bool = True
 
     # Email (SMTP) — for sending reminder emails with voice attachment

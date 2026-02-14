@@ -8,6 +8,7 @@ import {
 } from 'react'
 import i18n from '../i18n'
 import { getDir, type Locale } from '../translations'
+import { AUTH_KEYS, getMe, updatePreferredLanguage } from '../api/auth'
 
 const STORAGE_KEY = 'vaccitrack_locale'
 
@@ -34,6 +35,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale)
     localStorage.setItem(STORAGE_KEY, newLocale)
     i18n.changeLanguage(newLocale)
+    if (typeof window !== 'undefined' && localStorage.getItem(AUTH_KEYS.TOKEN)) {
+      updatePreferredLanguage(newLocale).catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!localStorage.getItem(AUTH_KEYS.TOKEN)) return
+    getMe()
+      .then((me) => {
+        const pref = me.preferred_language
+        if (pref === 'ar' || pref === 'fr' || pref === 'en') {
+          setLocaleState(pref)
+          localStorage.setItem(STORAGE_KEY, pref)
+          i18n.changeLanguage(pref)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {

@@ -7,7 +7,7 @@ import {
   User, Mail, Phone, Lock, Baby, Calendar, CheckCircle
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { register, login, saveToken } from '../api/auth'
+import { register, login, saveToken, updatePreferredLanguage } from '../api/auth'
 import { createChild } from '../api/children'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -104,7 +104,7 @@ const FormInput: FC<{
 /* ─── page ─── */
 const Signup: FC = () => {
   const { t } = useTranslation()
-  const { dir } = useLanguage()
+  const { dir, locale } = useLanguage()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [parent, setParent] = useState<ParentData>({
@@ -149,6 +149,7 @@ const Signup: FC = () => {
         password: parent.password,
       })
       saveToken(access_token, token_type)
+      updatePreferredLanguage(locale).catch(() => {})
       // Create the child from step 1 so parent + child are linked
       await createChild({
         name: `${child.firstName} ${child.lastName}`.trim(),

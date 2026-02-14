@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.parent import Parent
-from app.schemas.parent import ParentCreate, ParentLogin, ParentResponse
+from app.schemas.parent import ParentCreate, ParentLogin, ParentResponse, PreferredLanguageUpdate
+from app.utils.dependencies import get_current_user
 from app.utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -38,3 +39,22 @@ def login(credentials: ParentLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     access_token = create_access_token(data={"sub": parent.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/me", response_model=ParentResponse)
+def get_me(current_user: Parent = Depends(get_current_user)):
+    """Return the current authenticated parent (for profile and preferred_language)."""
+    return current_user
+
+
+@router.patch("/me", response_model=ParentResponse)
+def update_me(
+    body: PreferredLanguageUpdate,
+    db: Session = Depends(get_db),
+    current_user: Parent = Depends(get_current_user),
+):
+    """Update current user's preferred language for voice notifications (ar, fr, en)."""
+    current_user.preferred_language = body.preferred_language
+    db.commit()
+    db.refresh(current_user)
+    return current_user

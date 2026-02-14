@@ -42,32 +42,55 @@ def _media_dir() -> Path:
     return p
 
 
-def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date: date) -> str:
-    """Generate friendly reminder text in Arabic Fusha (Modern Standard Arabic) using Minimax LLM."""
+# Fallback reminder texts per language (when Minimax is unavailable or fails)
+_FALLBACK_REMINDERS = {
+    "ar": "تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {due_date_str}). نقدر لكم حرصكم. شكراً.",
+    "fr": "Rappel : votre enfant {child_name} doit recevoir le vaccin {vaccine_name} aujourd'hui (date prévue : {due_date_str}). Merci.",
+    "en": "Reminder: your child {child_name} is due for the {vaccine_name} vaccine today (due date: {due_date_str}). Thank you.",
+}
+
+
+def _generate_reminder_text_minimax(
+    lang: str, child_name: str, vaccine_name: str, due_date: date
+) -> str:
+    """Generate friendly reminder text in the given language (ar/fr/en) using Minimax LLM."""
     due_date_str = _format_date_readable(due_date)
-    if not settings.minimax_api_key:
-        return (
-            f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {due_date_str}). "
-            "نقدر لكم حرصكم. شكراً."
-        )
-    fallback = (
-        f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {due_date_str}). شكراً."
+    lang = lang if lang in ("ar", "fr", "en") else "fr"
+    fallback = _FALLBACK_REMINDERS.get(lang, _FALLBACK_REMINDERS["fr"]).format(
+        child_name=child_name, vaccine_name=vaccine_name, due_date_str=due_date_str
     )
+    if not settings.minimax_api_key:
+        return fallback
     url = f"{settings.minimax_base_url.rstrip('/')}/v1/text/chatcompletion_v2"
     headers = {
         "Authorization": f"Bearer {settings.minimax_api_key}",
         "Content-Type": "application/json",
     }
-    prompt = (
-        f"Generate a short, polite, friendly reminder in Arabic Fusha (Modern Standard Arabic / الفصحى) for a parent "
-        f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date_str}). "
-        "One or two sentences only. Use only Arabic (الفصحى). Do not use English or dialect."
-    )
-    # Message "name" is optional but included per Minimax doc example
+    if lang == "ar":
+        prompt = (
+            f"Generate a short, polite reminder in Arabic Fusha (الفصحى) for a parent "
+            f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date_str}). "
+            "One or two sentences only. Use only Modern Standard Arabic."
+        )
+        system = "You write very short reminders in Arabic Fusha for parents about child vaccines."
+    elif lang == "fr":
+        prompt = (
+            f"Génère un court rappel poli en français pour un parent : son enfant {child_name} "
+            f"doit recevoir le vaccin '{vaccine_name}' aujourd'hui (date prévue : {due_date_str}). "
+            "Une ou deux phrases seulement. En français uniquement."
+        )
+        system = "Tu écris de très courts rappels en français pour les parents concernant les vaccins des enfants."
+    else:
+        prompt = (
+            f"Generate a short, polite reminder in English for a parent "
+            f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date_str}). "
+            "One or two sentences only. Use only English."
+        )
+        system = "You write very short reminders in English for parents about child vaccines."
     payload: dict[str, Any] = {
         "model": settings.minimax_model,
         "messages": [
-            {"role": "system", "name": "MiniMax AI", "content": "You write very short reminders in Arabic Fusha (الفصحى) for parents about child vaccines. Use only Modern Standard Arabic."},
+            {"role": "system", "name": "MiniMax AI", "content": system},
             {"role": "user", "name": "User", "content": prompt},
         ],
     }
@@ -78,8 +101,7 @@ def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date
         base = data.get("base_resp") or {}
         status_code = base.get("status_code")
         if status_code not in (0, None):
-            msg = base.get("status_msg") or "Minimax API error"
-            logger.warning("Minimax API returned status_code=%s: %s. Using fallback text.", status_code, msg)
+            logger.warning("Minimax API returned status_code=%s. Using fallback text.", status_code)
             return fallback
         choices = data.get("choices") or []
         if choices:
@@ -88,7 +110,6 @@ def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date
                 content = msg.get("content") or ""
                 if isinstance(content, str) and content.strip():
                     return content.strip()
-        logger.warning("Minimax API returned no content in choices. Using fallback text.")
         return fallback
     except requests.RequestException as e:
         logger.warning("Minimax request failed: %s. Using fallback text.", e)
@@ -98,11 +119,21 @@ def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date
         return fallback
 
 
-def _generate_voice_elevenlabs(text: str) -> bytes | None:
-    """Generate voice from text via ElevenLabs. Returns audio bytes or None if disabled/failed."""
+def _get_voice_id_for_lang(lang: str) -> str:
+    """Return ElevenLabs voice ID for the given language (ar/fr/en). Falls back to default if not set."""
+    lang = lang if lang in ("ar", "fr", "en") else "fr"
+    vid = getattr(settings, f"elevenlabs_voice_id_{lang}", None) or ""
+    if vid:
+        return vid
+    return settings.elevenlabs_voice_id
+
+
+def _generate_voice_elevenlabs(text: str, lang: str = "fr") -> bytes | None:
+    """Generate voice from text via ElevenLabs using the voice ID for the given language. Returns audio bytes or None."""
     if not settings.reminder_send_voice or not settings.elevenlabs_api_key:
         return None
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{settings.elevenlabs_voice_id}"
+    voice_id = _get_voice_id_for_lang(lang)
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {
         "Accept": "audio/mpeg",
         "Content-Type": "application/json",
@@ -191,15 +222,20 @@ def _process_reminders_for_vaccinations(
         child_name = child.name
         vaccine_name = vac.vaccine_name
         due_date = vac.due_date or today
+        lang = (parent.preferred_language or "fr").strip().lower() or "fr"
+        if lang not in ("ar", "fr", "en"):
+            lang = "fr"
 
         try:
-            text = _generate_reminder_text_minimax(child_name, vaccine_name, due_date)
+            text = _generate_reminder_text_minimax(lang, child_name, vaccine_name, due_date)
         except Exception:
-            text = (
-                f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {_format_date_readable(due_date)}). شكراً."
+            text = _FALLBACK_REMINDERS.get(lang, _FALLBACK_REMINDERS["fr"]).format(
+                child_name=child_name,
+                vaccine_name=vaccine_name,
+                due_date_str=_format_date_readable(due_date),
             )
 
-        audio = _generate_voice_elevenlabs(text)
+        audio = _generate_voice_elevenlabs(text, lang)
         reminder_audio_path: str | None = None
         if audio is not None:
             vac.voice_sent = True

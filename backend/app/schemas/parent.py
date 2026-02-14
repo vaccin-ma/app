@@ -1,5 +1,6 @@
 """Pydantic schemas for Parent."""
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -23,4 +24,10 @@ class ParentResponse(BaseModel):
     name: str
     email: str
     phone_number: str | None
+    preferred_language: str | None
     created_at: datetime
+
+
+class PreferredLanguageUpdate(BaseModel):
+    """Update preferred language for voice notifications (ar, fr, en)."""
+    preferred_language: Literal["ar", "fr", "en"]

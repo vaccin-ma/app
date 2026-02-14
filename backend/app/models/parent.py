@@ -15,6 +15,8 @@ class Parent(Base):
     email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     phone_number: Mapped[str | None] = mapped_column(String, nullable=True)
+    # Preferred language for voice notifications: 'ar' | 'fr' | 'en' (synced from frontend)
+    preferred_language: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )

@@ -4,12 +4,12 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Mail, Lock, Eye, EyeOff, LogIn, Shield } from 'lucide-react'
-import { login, saveToken } from '../api/auth'
+import { login, saveToken, updatePreferredLanguage } from '../api/auth'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const Signin: FC = () => {
   const { t } = useTranslation()
-  const { dir } = useLanguage()
+  const { dir, locale } = useLanguage()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,6 +25,7 @@ const Signin: FC = () => {
     try {
       const { access_token, token_type } = await login({ email, password })
       saveToken(access_token, token_type)
+      updatePreferredLanguage(locale).catch(() => {})
       navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('signin.errorDefault'))

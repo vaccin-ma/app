@@ -1,10 +1,10 @@
 """Child management router. Parent must be logged in (get_current_user)."""
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.models.child import Child
 from app.models.child_vaccination import ChildVaccination
 from app.models.parent import Parent
@@ -41,9 +41,19 @@ def _get_child_or_404(db: Session, child_id: int, parent: Parent) -> Child:
     return child
 
 
+def _run_reminders_in_background(child_id: int) -> None:
+    """Generate voice reminders in background (own DB session)."""
+    db = SessionLocal()
+    try:
+        check_and_send_reminders_for_child(db, child_id)
+    finally:
+        db.close()
+
+
 @router.post("/", response_model=ChildResponse, status_code=201)
 def create_child(
     payload: ChildCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: Parent = Depends(get_current_user),
 ):
@@ -78,8 +88,8 @@ def create_child(
             )
         db.commit()
 
-        # If this child has due/overdue vaccines (e.g. birthdate in the past), generate voice right away
-        check_and_send_reminders_for_child(db, child.id)
+        # Generate voice reminders in background so the response returns immediately
+        background_tasks.add_task(_run_reminders_in_background, child.id)
 
     return child
 

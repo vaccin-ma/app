@@ -93,3 +93,32 @@ export function getAuthHeaders(): HeadersInit {
   if (!token) return {}
   return { Authorization: `Bearer ${token}` }
 }
+
+export interface MeResponse {
+  id: number
+  name: string
+  email: string
+  phone_number: string | null
+  preferred_language: string | null
+  created_at: string
+}
+
+export async function getMe(): Promise<MeResponse> {
+  const res = await fetch(`${AUTH}/me`, { headers: getAuthHeaders() })
+  const data = (await res.json()) as MeResponse | ApiError
+  if (!res.ok) throw new Error(getDetail(data as ApiError))
+  return data as MeResponse
+}
+
+export async function updatePreferredLanguage(
+  preferred_language: 'ar' | 'fr' | 'en'
+): Promise<MeResponse> {
+  const res = await fetch(`${AUTH}/me`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ preferred_language }),
+  })
+  const data = (await res.json()) as MeResponse | ApiError
+  if (!res.ok) throw new Error(getDetail(data as ApiError))
+  return data as MeResponse
+}

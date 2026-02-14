@@ -210,6 +210,16 @@
     "daysUntil": "Dans {{count}} jours",
     "today": "Aujourd'hui"
   },
+  "notifications": {
+    "title": "Notifications",
+    "voiceReminders": "Rappels vocaux",
+    "play": "Écouter",
+    "pause": "Pause",
+    "viewInTimeline": "Voir dans le calendrier",
+    "delete": "Supprimer",
+    "empty": "Aucun rappel vocal pour le moment.",
+    "loading": "Chargement…"
+  },
   "families": {
     "title": "Familles de vaccins",
     "subtitle": "Découvrez chaque vaccin et écoutez sa description",
