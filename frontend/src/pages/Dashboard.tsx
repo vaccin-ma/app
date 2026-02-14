@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FC } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Baby, Plus, LogOut, ChevronRight } from 'lucide-react'
 import { AUTH_KEYS, clearToken } from '../api/auth'
@@ -58,15 +58,15 @@ const Dashboard: FC = () => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Logo className="h-9 w-auto object-contain" />
+            <Logo className="h-16 w-auto object-contain" />
             <div className="flex items-center gap-3">
+              <LanguageSwitcher />
               <NotificationBell
                 onViewTimeline={(childId) => {
                   const child = children.find((c) => c.id === childId)
                   if (child) setSelectedChild(child)
                 }}
               />
-              <LanguageSwitcher />
               <button
                 type="button"
                 onClick={handleLogout}

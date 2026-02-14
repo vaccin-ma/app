@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Logo } from '../components/Logo'
 import { Mail, Lock, Eye, EyeOff, LogIn, Shield } from 'lucide-react'
-import { login, saveToken, updatePreferredLanguage } from '../api/auth'
+import { login, saveToken, updatePreferredLanguage, getMe } from '../api/auth'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const Signin: FC = () => {
@@ -27,7 +27,14 @@ const Signin: FC = () => {
       const { access_token, token_type } = await login({ email, password })
       saveToken(access_token, token_type)
       updatePreferredLanguage(locale).catch(() => {})
-      navigate('/dashboard', { replace: true })
+      
+      // Check if user is admin
+      const user = await getMe()
+      if (user.is_admin) {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('signin.errorDefault'))
     } finally {
@@ -47,7 +54,7 @@ const Signin: FC = () => {
 
         <div className="relative text-white text-center max-w-md">
           <div className="mb-10">
-            <Logo className="h-12 w-auto object-contain [filter:brightness(0)_invert(1)]" />
+            <Logo className="h-32 w-auto object-contain [filter:brightness(0)_invert(1)]" />
           </div>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
@@ -74,7 +81,7 @@ const Signin: FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <Logo className="h-10 w-auto object-contain" />
+            <Logo className="h-24 w-auto object-contain" />
           </div>
 
           <motion.div

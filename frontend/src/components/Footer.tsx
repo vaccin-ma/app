@@ -13,15 +13,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
           <div className="lg:col-span-2">
             <div className="mb-6">
-              <Logo className="h-12 w-auto object-contain [filter:brightness(0)_invert(1)]" />
+              <Logo className="h-20 w-auto object-contain [filter:brightness(0)_invert(1)]" />
             </div>
             <p className="text-gray-400 text-lg mb-6 max-w-md leading-relaxed">
               {t('footer.tagline')}
             </p>
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-800/50 rounded-lg px-4 py-3 inline-flex">
-              <Heart size={16} className="text-red-400" />
-              <span>{t('footer.voiceBy')}</span>
-            </div>
+            {/* Voice credit removed as per request */}
           </div>
 
           <div>

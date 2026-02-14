@@ -231,5 +231,16 @@
     "playing": "Lecture en cours…",
     "listenInfo": "Écouter la description",
     "tapToLearn": "Appuyez sur une famille pour en savoir plus"
+  },
+  "admin": {
+    "region": "Région",
+    "population": "Population",
+    "annualBirths": "Naissances Annuelles",
+    "coverage": "Couverture",
+    "status": "Statut",
+    "safe": "Sûr (≥ 95%)",
+    "warning": "Attention (85-95%)",
+    "danger": "Danger (< 85%)",
+    "risk": "À Risque"
   }
 }
