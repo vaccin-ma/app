@@ -51,11 +51,14 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
 
-    # Twilio — for SMS reminder (optional)
+    # Twilio — SMS and voice call reminders
     twilio_sms_enabled: bool = False
+    twilio_voice_enabled: bool = False
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_phone_number: str = ""
+    # Public URL of this backend (required for Twilio voice: Twilio fetches TwiML from here)
+    app_base_url: str = ""
 
     # Media: directory for storing reminder audio (relative to backend root or absolute)
     reminder_media_dir: str = "media/reminders"

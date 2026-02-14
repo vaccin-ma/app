@@ -28,6 +28,53 @@
 
 ---
 
+## Testing Twilio voice calls (ngrok)
+
+Twilio needs a **public URL** to fetch TwiML when the call is answered. Use ngrok to expose your local backend.
+
+1. **Sign up and add your ngrok authtoken**  
+   Ngrok requires a (free) account and authtoken:
+   - Sign up: [dashboard.ngrok.com/signup](https://dashboard.ngrok.com/signup)
+   - Get your authtoken: [dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)
+   - Then run once: `ngrok config add-authtoken YOUR_TOKEN`  
+   (If you use the binary in `backend/ngrok`: `./ngrok config add-authtoken YOUR_TOKEN` from the backend directory.)
+
+2. **Install ngrok** (if not already in `backend/ngrok`)  
+   [ngrok.com/download](https://ngrok.com/download) or place the binary in `backend/ngrok`.
+
+2. **Start the backend** (terminal 1):
+   ```bash
+   cd backend
+   source .venv/bin/activate
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+3. **Start ngrok** (terminal 2):
+   ```bash
+   cd backend
+   chmod +x scripts/run_ngrok.sh
+   ./scripts/run_ngrok.sh 8000
+   ```
+   Or run directly: `ngrok http 8000`.
+
+4. **Set APP_BASE_URL**  
+   Copy the **https** URL from ngrok (e.g. `https://abc123.ngrok-free.app`) into `backend/.env`:
+   ```env
+   APP_BASE_URL=https://abc123.ngrok-free.app
+   TWILIO_VOICE_ENABLED=true
+   TWILIO_ACCOUNT_SID=ACxxxx...
+   TWILIO_AUTH_TOKEN=...
+   TWILIO_PHONE_NUMBER=+1...
+   ```
+   Restart the backend (terminal 1) so it picks up `APP_BASE_URL`.
+
+5. **Trigger a reminder**  
+   Call `GET http://localhost:8000/reminders/send` (or add a due vaccination and use the flow). Twilio will call the parent’s number and fetch TwiML from `https://your-ngrok-url/reminders/twiml/<vaccination_id>`.
+
+**Trial:** Only **verified** caller IDs in the Twilio console can receive calls. Add your test number under Phone Numbers → Verified Caller IDs.
+
+---
+
 ## Admin Dashboard (Monitor régional, approvisionnement, Telegram)
 
 - **Backend**: modèles `Region`, `NationalStock`, `TelegramLog`, `CoverageReport`; endpoints sous `/admin/*` (JWT admin requis).

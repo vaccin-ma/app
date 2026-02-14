@@ -60,3 +60,6 @@ dmypy.json
 # Logs
 *.log
 logs/
+
+# Local ngrok binary (optional; script uses backend/ngrok if present)
+ngrok
