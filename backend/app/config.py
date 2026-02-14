@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     )
 
     # Security — set SECRET_KEY in production (e.g. export SECRET_KEY=your-secret)
-    secret_key: str = "change-me-in-production"
+    secret_key: str = "ho9na"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
@@ -27,6 +27,32 @@ class Settings(BaseSettings):
     # Optional app metadata (can be set via env)
     app_name: str = "Vaccine Reminder API"
     debug: bool = False
+
+    # Reminder service: Minimax LLM (Darija text) — set via .env
+    minimax_api_key: str = ""
+    minimax_base_url: str = "https://api.minimax.io"
+
+    # Reminder service: ElevenLabs voice (optional) — set via .env
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = "PmGnwGtnBs40iau7JfoF"
+    reminder_send_voice: bool = True
+
+    # Email (SMTP) — for sending reminder emails with voice attachment
+    email_reminders_enabled: bool = False
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+
+    # Twilio — for SMS reminder (optional)
+    twilio_sms_enabled: bool = False
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_phone_number: str = ""
+
+    # Media: directory for storing reminder audio (relative to backend root or absolute)
+    reminder_media_dir: str = "media/reminders"
 
 
 settings = Settings()
