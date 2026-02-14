@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Baby, Plus, LogOut, ChevronRight } from 'lucide-react'
 import { AUTH_KEYS, clearToken } from '../api/auth'
+import { useTranslation } from 'react-i18next'
+import { useLanguage } from '../contexts/LanguageContext'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { useChildren } from '../hooks/useChildren'
 import { useTimeline } from '../hooks/useTimeline'
 import type { Child } from '../api/children'
@@ -17,8 +20,10 @@ const Dashboard: FC = () => {
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [addModalOpen, setAddModalOpen] = useState(false)
 
+  const { dir } = useLanguage()
+  const { t } = useTranslation()
   const { children, loading, error, refetch, addChild } = useChildren({ enabled: !!token })
-  const { items, loading: timelineLoading, error: timelineError, markComplete } = useTimeline(
+  const { items, loading: timelineLoading, error: timelineError, markCompletePeriod } = useTimeline(
     selectedChild?.id ?? null
   )
 
@@ -33,7 +38,7 @@ const Dashboard: FC = () => {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/20 to-blue-50/20">
+    <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/20 to-blue-50/20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
@@ -44,14 +49,17 @@ const Dashboard: FC = () => {
               </div>
               <span className="text-xl font-bold text-gray-900">VacciTrack</span>
             </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>تسجيل الخروج</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>{t('nav.logOut')}</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -62,9 +70,9 @@ const Dashboard: FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2"
         >
-          لوحة التحكم
+          {t('dashboard.title')}
         </motion.h1>
-        <p className="text-gray-600 mb-8">إدارة أطفالك وجداول اللقاحات</p>
+        <p className="text-gray-600 mb-8">{t('dashboard.subtitle')}</p>
 
         {selectedChild ? (
           <motion.section
@@ -78,13 +86,13 @@ const Dashboard: FC = () => {
               className="flex items-center gap-2 text-teal-600 font-medium mb-4 hover:underline"
             >
               <ChevronRight className="w-5 h-5" />
-              العودة إلى قائمة الأطفال
+              {t('dashboard.backToChildren')}
             </button>
             <Timeline
               items={items}
               loading={timelineLoading}
               error={timelineError}
-              onComplete={markComplete}
+              onCompletePeriod={markCompletePeriod}
               childName={selectedChild.name}
             />
           </motion.section>
@@ -95,14 +103,14 @@ const Dashboard: FC = () => {
             transition={{ delay: 0.1 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-gray-900">أطفالي</h2>
+              <h2 className="text-lg font-bold text-gray-900">{t('dashboard.myChildren')}</h2>
               <button
                 type="button"
                 onClick={() => setAddModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700 shadow-lg shadow-teal-500/25"
               >
                 <Plus className="w-5 h-5" />
-                إضافة طفل
+                {t('dashboard.addChild')}
               </button>
             </div>
 
@@ -113,19 +121,19 @@ const Dashboard: FC = () => {
             )}
 
             {loading ? (
-              <div className="py-12 text-center text-gray-500">جاري التحميل...</div>
+              <div className="py-12 text-center text-gray-500">{t('dashboard.loading')}</div>
             ) : children.length === 0 ? (
               <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-12 text-center">
                 <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 font-medium mb-2">لا يوجد أطفال مسجلون بعد</p>
-                <p className="text-gray-500 text-sm mb-4">أضف طفلك الأول لبدء تتبع اللقاحات</p>
+                <p className="text-gray-600 font-medium mb-2">{t('dashboard.noChildren')}</p>
+                <p className="text-gray-500 text-sm mb-4">{t('dashboard.addFirstChild')}</p>
                 <button
                   type="button"
                   onClick={() => setAddModalOpen(true)}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700"
                 >
                   <Plus className="w-5 h-5" />
-                  إضافة طفل
+                  {t('dashboard.addChild')}
                 </button>
               </div>
             ) : (

@@ -1,39 +1,19 @@
-
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { UserPlus, Bell, CheckCircle, Shield } from 'lucide-react'
 
-const steps = [
-  {
-    number: '01',
-    icon: UserPlus,
-    title: 'Create Account',
-    description: 'Sign up in seconds and add your children\'s information securely.'
-  },
-  {
-    number: '02',
-    icon: Bell,
-    title: 'Set Reminders',
-    description: 'Choose how you want to be notified — voice, SMS, or email.'
-  },
-  {
-    number: '03',
-    icon: CheckCircle,
-    title: 'Track Progress',
-    description: 'Monitor your child\'s vaccination journey and never miss a dose.'
-  },
-  {
-    number: '04',
-    icon: Shield,
-    title: 'Stay Protected',
-    description: 'Keep your family healthy with complete immunization coverage.'
-  }
-]
-
 const HowItWorks = () => {
+  const { t } = useTranslation()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const steps = [
+    { number: '01', icon: UserPlus, titleKey: 'howItWorks.step0Title', descKey: 'howItWorks.step0Desc' },
+    { number: '02', icon: Bell, titleKey: 'howItWorks.step1Title', descKey: 'howItWorks.step1Desc' },
+    { number: '03', icon: CheckCircle, titleKey: 'howItWorks.step2Title', descKey: 'howItWorks.step2Desc' },
+    { number: '04', icon: Shield, titleKey: 'howItWorks.step3Title', descKey: 'howItWorks.step3Desc' },
+  ]
 
   return (
     <section ref={ref} id="how-it-works" className="py-24 sm:py-32 bg-white">
@@ -46,16 +26,16 @@ const HowItWorks = () => {
           className="text-center mb-16 sm:mb-20"
         >
           <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold tracking-widest uppercase mb-5">
-            How It Works
+            {t('howItWorks.badge')}
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
-            Get Started in{' '}
+            {t('howItWorks.title')}{' '}
             <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-              4 Simple Steps
+              {t('howItWorks.titleHighlight')}
             </span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Setting up your family's vaccination tracking is quick and easy
+            {t('howItWorks.subtitle')}
           </p>
         </motion.div>
 
@@ -83,10 +63,10 @@ const HowItWorks = () => {
 
                 {/* Content */}
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  {step.title}
+                  {t(step.titleKey)}
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  {step.description}
+                  {t(step.descKey)}
                 </p>
               </motion.div>
             )

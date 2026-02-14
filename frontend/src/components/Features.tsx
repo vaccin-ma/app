@@ -1,39 +1,18 @@
-
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Calendar, Phone, Users, ArrowRight } from 'lucide-react'
 
-const features = [
-  {
-    icon: Calendar,
-    title: 'Smart Tracking',
-    description: 'Automated schedule based on the PNI (National Program). Never manually calculate vaccine dates again.',
-    gradient: 'from-teal-500 to-emerald-500',
-    bg: 'bg-teal-50',
-    iconColor: 'text-teal-600'
-  },
-  {
-    icon: Phone,
-    title: 'Voice Reminders',
-    description: 'Powered by ElevenLabs to call you when a dose is due. Get personalized reminders that fit your schedule.',
-    gradient: 'from-blue-500 to-indigo-500',
-    bg: 'bg-blue-50',
-    iconColor: 'text-blue-600'
-  },
-  {
-    icon: Users,
-    title: 'Multi-Child Management',
-    description: 'One account for the whole family. Track all your children\'s vaccination records in one secure place.',
-    gradient: 'from-purple-500 to-pink-500',
-    bg: 'bg-purple-50',
-    iconColor: 'text-purple-600'
-  }
-]
-
 const Features = () => {
+  const { t } = useTranslation()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const features = [
+    { icon: Calendar, titleKey: 'features.item0Title', descKey: 'features.item0Desc', gradient: 'from-teal-500 to-emerald-500', bg: 'bg-teal-50', iconColor: 'text-teal-600' },
+    { icon: Phone, titleKey: 'features.item1Title', descKey: 'features.item1Desc', gradient: 'from-blue-500 to-indigo-500', bg: 'bg-blue-50', iconColor: 'text-blue-600' },
+    { icon: Users, titleKey: 'features.item2Title', descKey: 'features.item2Desc', gradient: 'from-purple-500 to-pink-500', bg: 'bg-purple-50', iconColor: 'text-purple-600' },
+  ]
 
   return (
     <section ref={ref} id="features" className="py-24 sm:py-32 bg-gray-50">
@@ -46,16 +25,16 @@ const Features = () => {
           className="text-center mb-16 sm:mb-20"
         >
           <span className="inline-block px-4 py-1.5 bg-teal-100 text-teal-700 rounded-full text-xs font-bold tracking-widest uppercase mb-5">
-            Features
+            {t('features.badge')}
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
-            Everything You Need to{' '}
+            {t('features.title')}{' '}
             <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-              Stay on Track
+              {t('features.titleHighlight')}
             </span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Comprehensive tools designed for busy parents who care about their children's health
+            {t('features.subtitle')}
           </p>
         </motion.div>
 
@@ -78,15 +57,15 @@ const Features = () => {
 
                 {/* Content */}
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {feature.title}
+                  {t(feature.titleKey)}
                 </h3>
                 <p className="text-gray-600 leading-relaxed mb-5 text-sm">
-                  {feature.description}
+                  {t(feature.descKey)}
                 </p>
 
                 {/* Learn More */}
                 <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${feature.iconColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
-                  Learn more
+                  {t('features.learnMore')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </motion.div>

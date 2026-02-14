@@ -26,11 +26,14 @@ const statusConfig = {
 interface VaccineItemProps {
   item: TimelineItem
   onComplete: (id: number) => void
+  /** When true, show vaccine_name as main label (period already shown by group header) */
+  groupedByPeriod?: boolean
 }
 
-export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete }) => {
+export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete, groupedByPeriod }) => {
   const [expanded, setExpanded] = useState(false)
   const { icon: Icon, color, bg } = statusConfig[item.status]
+  const mainLabel = groupedByPeriod ? item.vaccine_name : item.period_label
 
   return (
     <div
@@ -45,7 +48,7 @@ export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete }) => {
           onClick={() => setExpanded(!expanded)}
           className="flex-1 flex items-center justify-between text-right min-w-0"
         >
-          <span className="font-medium text-gray-800">{item.period_label}</span>
+          <span className="font-medium text-gray-800">{mainLabel}</span>
           {expanded ? (
             <ChevronLeft className="w-5 h-5 text-gray-500 flex-shrink-0" />
           ) : (
@@ -65,7 +68,7 @@ export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete }) => {
       </div>
       {expanded && (
         <div className="mt-3 pt-3 border-t border-gray-100">
-          <p className="text-gray-700">{item.vaccine_name}</p>
+          {!groupedByPeriod && <p className="text-gray-700">{item.vaccine_name}</p>}
           {item.completed_at && (
             <p className="text-sm text-gray-500 mt-1">
               تم التنفيذ: {new Date(item.completed_at).toLocaleDateString('ar-MA')}

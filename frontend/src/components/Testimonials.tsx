@@ -1,43 +1,24 @@
-
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Star, Quote } from 'lucide-react'
 
-const testimonials = [
-  {
-    name: 'Fatima El Amrani',
-    role: 'Mother of 2 · Casablanca',
-    rating: 5,
-    text: 'VacciTrack has been a lifesaver! I never worry about missing my children\'s vaccination appointments anymore. The voice reminders are so helpful.',
-    initials: 'FE'
-  },
-  {
-    name: 'Youssef Bennani',
-    role: 'Father of 3 · Rabat',
-    rating: 5,
-    text: 'Managing vaccinations for three kids was overwhelming. VacciTrack made it simple and stress-free. Highly recommended for all parents!',
-    initials: 'YB'
-  },
-  {
-    name: 'Samira Alaoui',
-    role: 'Mother of 1 · Marrakech',
-    rating: 5,
-    text: 'The automated tracking based on the PNI is brilliant. I love that everything is in one place and so easy to access.',
-    initials: 'SA'
-  }
-]
-
-const stats = [
-  { value: '10,000+', label: 'Active Families' },
-  { value: '50,000+', label: 'Tracked Vaccines' },
-  { value: '98%', label: 'On-Time Rate' },
-  { value: '4.9/5', label: 'User Rating' }
-]
-
 const Testimonials = () => {
+  const { t } = useTranslation()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const testimonials = [
+    { nameKey: 'testimonials.name0', roleKey: 'testimonials.role0', textKey: 'testimonials.text0', rating: 5, initials: 'FE' },
+    { nameKey: 'testimonials.name1', roleKey: 'testimonials.role1', textKey: 'testimonials.text1', rating: 5, initials: 'YB' },
+    { nameKey: 'testimonials.name2', roleKey: 'testimonials.role2', textKey: 'testimonials.text2', rating: 5, initials: 'SA' },
+  ]
+  const stats = [
+    { value: '10,000+', labelKey: 'testimonials.stat0Label' },
+    { value: '50,000+', labelKey: 'testimonials.stat1Label' },
+    { value: '98%', labelKey: 'testimonials.stat2Label' },
+    { value: '4.9/5', labelKey: 'testimonials.stat3Label' },
+  ]
 
   return (
     <section ref={ref} className="py-24 sm:py-32 bg-gray-50">
@@ -50,22 +31,22 @@ const Testimonials = () => {
           className="text-center mb-16 sm:mb-20"
         >
           <span className="inline-block px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-xs font-bold tracking-widest uppercase mb-5">
-            Testimonials
+            {t('testimonials.badge')}
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
-            Trusted by{' '}
+            {t('testimonials.title')}{' '}
             <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-              Moroccan Families
+              {t('testimonials.titleHighlight')}
             </span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            See what parents are saying about VacciTrack
+            {t('testimonials.subtitle')}
           </p>
         </motion.div>
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {testimonials.map((t, index) => (
+          {testimonials.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -77,24 +58,24 @@ const Testimonials = () => {
 
               {/* Stars */}
               <div className="flex gap-1 mb-5">
-                {[...Array(t.rating)].map((_, i) => (
+                {[...Array(item.rating)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
 
               {/* Quote */}
               <p className="text-gray-700 leading-relaxed mb-6 text-sm">
-                "{t.text}"
+                "{t(item.textKey)}"
               </p>
 
               {/* Author */}
               <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
                 <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-xs">{t.initials}</span>
+                  <span className="text-white font-bold text-xs">{item.initials}</span>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 text-sm">{t.name}</p>
-                  <p className="text-xs text-gray-500">{t.role}</p>
+                  <p className="font-semibold text-gray-900 text-sm">{t(item.nameKey)}</p>
+                  <p className="text-xs text-gray-500">{t(item.roleKey)}</p>
                 </div>
               </div>
             </motion.div>
@@ -113,7 +94,7 @@ const Testimonials = () => {
               <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-1">
                 {stat.value}
               </div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-sm text-gray-600">{t(stat.labelKey)}</div>
             </div>
           ))}
         </motion.div>

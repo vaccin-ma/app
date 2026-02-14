@@ -1,14 +1,14 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { FC } from 'react'
-import { ChevronDown, ChevronLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { TimelineItem as T } from '../../api/children'
-import { VaccineItem } from './VaccineItem'
+import { PeriodRow } from './PeriodRow'
 
 interface TimelineProps {
   items: T[]
   loading: boolean
   error: string | null
-  onComplete: (id: number) => void
+  onCompletePeriod: (ids: number[]) => Promise<void>
   childName?: string
 }
 
@@ -16,11 +16,10 @@ export const Timeline: FC<TimelineProps> = ({
   items,
   loading,
   error,
-  onComplete,
+  onCompletePeriod,
   childName,
 }) => {
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-
+  const { t } = useTranslation()
   const grouped = useMemo(() => {
     const map = new Map<string, T[]>()
     for (const item of items) {
@@ -31,19 +30,21 @@ export const Timeline: FC<TimelineProps> = ({
     return Array.from(map.entries())
   }, [items])
 
-  const upcoming = useMemo(
-    () => items.filter((v) => v.status === 'upcoming' || v.status === 'due').slice(0, 2),
-    [items]
-  )
-
-  const toggleGroup = (label: string) => {
-    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }))
-  }
+  const upcomingGroups = useMemo(() => {
+    const upcomingItems = items.filter((v) => v.status === 'upcoming' || v.status === 'due')
+    const byPeriod = new Map<string, T[]>()
+    for (const item of upcomingItems) {
+      const key = item.period_label
+      if (!byPeriod.has(key)) byPeriod.set(key, [])
+      byPeriod.get(key)!.push(item)
+    }
+    return Array.from(byPeriod.entries()).slice(0, 2)
+  }, [items])
 
   if (loading) {
     return (
       <div className="py-12 text-center text-gray-500">
-        جاري تحميل الجدول...
+        {t('dashboard.timelineLoading')}
       </div>
     )
   }
@@ -57,7 +58,7 @@ export const Timeline: FC<TimelineProps> = ({
   if (items.length === 0) {
     return (
       <div className="py-12 text-center text-gray-500">
-        لا توجد لقاحات مسجلة.
+        {t('dashboard.noVaccines')}
       </div>
     )
   }
@@ -65,49 +66,34 @@ export const Timeline: FC<TimelineProps> = ({
   return (
     <div className="space-y-6">
       {childName && (
-        <h2 className="text-xl font-bold text-gray-900">جدول لقاحات {childName}</h2>
+        <h2 className="text-xl font-bold text-gray-900">{t('dashboard.vaccineScheduleFor', { name: childName })}</h2>
       )}
 
-      {upcoming.length > 0 && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-          <h3 className="text-sm font-semibold text-amber-800 mb-2">القادم قريباً</h3>
-          <ul className="space-y-2">
-            {upcoming.map((item) => (
-              <li key={item.id}>
-                <VaccineItem item={item} onComplete={onComplete} />
-              </li>
-            ))}
-          </ul>
+      {upcomingGroups.length > 0 && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-amber-800 mb-2">{t('dashboard.upcomingSoon')}</h3>
+          {upcomingGroups.map(([periodLabel, groupItems]) => (
+            <PeriodRow
+              key={periodLabel}
+              periodLabel={periodLabel}
+              items={groupItems}
+              onCompletePeriod={onCompletePeriod}
+              defaultCollapsed={false}
+            />
+          ))}
         </div>
       )}
 
       <div className="space-y-3">
-        {grouped.map(([periodLabel, groupItems]) => {
-          const isCollapsed = collapsed[periodLabel]
-          return (
-            <div key={periodLabel} className="rounded-xl border border-gray-200 overflow-hidden">
-              <button
-                type="button"
-                onClick={() => toggleGroup(periodLabel)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-right"
-              >
-                <span className="font-semibold text-gray-800">{periodLabel}</span>
-                {isCollapsed ? (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <ChevronLeft className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-              {!isCollapsed && (
-                <div className="p-3 space-y-2">
-                  {groupItems.map((item) => (
-                    <VaccineItem key={item.id} item={item} onComplete={onComplete} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {grouped.map(([periodLabel, groupItems]) => (
+          <PeriodRow
+            key={periodLabel}
+            periodLabel={periodLabel}
+            items={groupItems}
+            onCompletePeriod={onCompletePeriod}
+            defaultCollapsed={true}
+          />
+        ))}
       </div>
     </div>
   )

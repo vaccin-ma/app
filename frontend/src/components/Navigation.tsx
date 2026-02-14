@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LogIn, Menu, X, LayoutDashboard } from 'lucide-react'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
 
 const Navigation = () => {
+  const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem(AUTH_TOKEN_KEY)
 
@@ -14,7 +17,7 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -30,20 +33,21 @@ const Navigation = () => {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="hidden md:flex items-center gap-8"
+            className="hidden md:flex items-center gap-6"
           >
+            <LanguageSwitcher />
             <a href="#features" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
-              Features
+              {t('nav.features')}
             </a>
             <a href="#how-it-works" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
-              How It Works
+              {t('nav.howItWorks')}
             </a>
             <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
-              About
+              {t('nav.about')}
             </a>
             {isLoggedIn ? (
               <Link
@@ -51,7 +55,7 @@ const Navigation = () => {
                 className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
               >
                 <LayoutDashboard size={18} />
-                <span>لوحة التحكم</span>
+                <span>{t('nav.dashboard')}</span>
               </Link>
             ) : (
               <Link
@@ -59,18 +63,21 @@ const Navigation = () => {
                 className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
               >
                 <LogIn size={18} />
-                <span>Sign In</span>
+                <span>{t('nav.signIn')}</span>
               </Link>
             )}
           </motion.div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-gray-700 hover:text-teal-600 transition-colors"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile: lang + menu button */}
+          <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-700 hover:text-teal-600 transition-colors"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -82,13 +89,13 @@ const Navigation = () => {
           >
             <div className="flex flex-col space-y-4">
               <a href="#features" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
-                Features
+                {t('nav.features')}
               </a>
               <a href="#how-it-works" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
-                How It Works
+                {t('nav.howItWorks')}
               </a>
               <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
-                About
+                {t('nav.about')}
               </a>
               {isLoggedIn ? (
                 <Link
@@ -96,7 +103,7 @@ const Navigation = () => {
                   className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
                 >
                   <LayoutDashboard size={18} />
-                  <span>لوحة التحكم</span>
+                  <span>{t('nav.dashboard')}</span>
                 </Link>
               ) : (
                 <Link
@@ -104,7 +111,7 @@ const Navigation = () => {
                   className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
                 >
                   <LogIn size={18} />
-                  <span>Sign In</span>
+                  <span>{t('nav.signIn')}</span>
                 </Link>
               )}
             </div>

@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowRight, Shield, CheckCircle } from 'lucide-react'
 
 const Hero: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white pt-24 pb-32 overflow-hidden">
       {/* Subtle background blobs */}
@@ -21,7 +23,7 @@ const Hero: React.FC = () => {
         >
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-50 border border-teal-200 text-teal-700 rounded-full">
             <Shield className="w-4 h-4" />
-            <span className="text-sm font-medium">Trusted by 10,000+ Moroccan Families</span>
+            <span className="text-sm font-medium">{t('hero.badge')}</span>
           </div>
         </motion.div>
 
@@ -32,10 +34,10 @@ const Hero: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight"
         >
-          Protect Their Future,
+          {t('hero.title1')}
           <br />
           <span className="bg-gradient-to-r from-teal-600 via-teal-500 to-blue-500 bg-clip-text text-transparent">
-            One Dose at a Time
+            {t('hero.title2')}
           </span>
         </motion.h1>
 
@@ -46,8 +48,7 @@ const Hero: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg sm:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed"
         >
-          Track your child's journey through the Moroccan National Immunization Program. 
-          Get automated voice reminders and never miss a milestone.
+          {t('hero.subtitle')}
         </motion.p>
 
         {/* CTA Buttons */}
@@ -58,11 +59,11 @@ const Hero: React.FC = () => {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14"
         >
           <Link to="/signup" className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-lg font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
-            Get Started Free
+            {t('hero.ctaStart')}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link to="/signin" className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 text-lg font-semibold rounded-xl border-2 border-gray-200 hover:border-teal-400 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 text-center">
-            Sign In
+            {t('hero.ctaSignIn')}
           </Link>
         </motion.div>
 
@@ -75,15 +76,15 @@ const Hero: React.FC = () => {
         >
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-teal-600" />
-            <span>100% Free</span>
+            <span>{t('hero.trust1')}</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-teal-600" />
-            <span>GDPR Compliant</span>
+            <span>{t('hero.trust2')}</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-teal-600" />
-            <span>PNI Certified</span>
+            <span>{t('hero.trust3')}</span>
           </div>
         </motion.div>
       </div>

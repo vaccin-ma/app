@@ -1,4 +1,5 @@
 import { useState, type FC, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import type { CreateChildPayload } from '../../api/children'
 
@@ -8,6 +9,7 @@ interface AddChildModalProps {
 }
 
 export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [gender, setGender] = useState<string>('')
@@ -22,11 +24,13 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
       await onSubmit({ name, birthdate, gender: gender || null })
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'فشل الإضافة')
+      setError(err instanceof Error ? err.message : t('addChildModal.errorDefault'))
     } finally {
       setLoading(false)
     }
   }
+
+  const genderOptions = [t('addChildModal.male'), t('addChildModal.female')]
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
@@ -35,7 +39,7 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">إضافة طفل جديد</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t('addChildModal.title')}</h2>
           <button type="button" onClick={onClose} className="p-2 text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
@@ -47,18 +51,18 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">الاسم</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('addChildModal.name')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              placeholder="اسم الطفل"
+              placeholder={t('addChildModal.namePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">تاريخ الميلاد</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('addChildModal.dateOfBirth')}</label>
             <input
               type="date"
               value={birthdate}
@@ -69,9 +73,9 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">الجنس</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('addChildModal.gender')}</label>
             <div className="flex gap-2">
-              {['ذكر', 'أنثى'].map((g) => (
+              {genderOptions.map((g) => (
                 <button
                   key={g}
                   type="button"
@@ -93,14 +97,14 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit }) => 
               onClick={onClose}
               className="flex-1 py-3 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50"
             >
-              إلغاء
+              {t('addChildModal.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading || !name || !birthdate}
               className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 disabled:opacity-50"
             >
-              {loading ? 'جاري الإضافة...' : 'إضافة'}
+              {loading ? t('addChildModal.adding') : t('addChildModal.add')}
             </button>
           </div>
         </form>

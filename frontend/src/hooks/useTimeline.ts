@@ -38,5 +38,18 @@ export function useTimeline(childId: number | null) {
     )
   }, [])
 
-  return { items, loading, error, refetch: fetchTimeline, markComplete }
+  const markCompletePeriod = useCallback(async (vaccinationIds: number[]) => {
+    if (vaccinationIds.length === 0) return
+    await Promise.all(vaccinationIds.map((id) => completeVaccination(id)))
+    const now = new Date().toISOString()
+    setItems((prev) =>
+      prev.map((v) =>
+        vaccinationIds.includes(v.id)
+          ? { ...v, completed: true, completed_at: now, status: 'completed' as const }
+          : v
+      )
+    )
+  }, [])
+
+  return { items, loading, error, refetch: fetchTimeline, markComplete, markCompletePeriod }
 }

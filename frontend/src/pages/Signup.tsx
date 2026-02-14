@@ -6,8 +6,10 @@ import {
   Shield, ArrowRight, ArrowLeft, Eye, EyeOff,
   User, Mail, Phone, Lock, Baby, Calendar, CheckCircle
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { register, login, saveToken } from '../api/auth'
 import { createChild } from '../api/children'
+import { useLanguage } from '../contexts/LanguageContext'
 
 /* ─── types ─── */
 interface ParentData {
@@ -101,6 +103,8 @@ const FormInput: FC<{
 
 /* ─── page ─── */
 const Signup: FC = () => {
+  const { t } = useTranslation()
+  const { dir } = useLanguage()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [parent, setParent] = useState<ParentData>({
@@ -153,7 +157,7 @@ const Signup: FC = () => {
       })
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed')
+      setError(err instanceof Error ? err.message : t('signup.errorDefault'))
     } finally {
       setLoading(false)
     }
@@ -167,7 +171,7 @@ const Signup: FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/30 to-blue-50/30 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/30 to-blue-50/30 flex" dir={dir}>
       {/* Left panel — branding (large screens) */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-br from-teal-600 to-blue-600 relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-10">
@@ -185,17 +189,17 @@ const Signup: FC = () => {
           </Link>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
-            Join thousands of<br />Moroccan families
+            {t('signup.joinTitle')}
           </h2>
           <p className="text-white/80 text-lg leading-relaxed mb-10">
-            Create your free account and start tracking your child's vaccination journey today.
+            {t('signup.joinDesc')}
           </p>
 
-          <div className="space-y-4 text-left">
-            {['Smart PNI-based schedule', 'Voice reminders via ElevenLabs', 'Multi-child management'].map((t, i) => (
+          <div className="space-y-4 text-right">
+            {[t('signup.bullet0'), t('signup.bullet1'), t('signup.bullet2')].map((text, i) => (
               <div key={i} className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-teal-300 flex-shrink-0" />
-                <span className="text-white/90">{t}</span>
+                <span className="text-white/90">{text}</span>
               </div>
             ))}
           </div>
@@ -216,12 +220,12 @@ const Signup: FC = () => {
           </Link>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
-            Create your account
+            {t('signup.formTitle')}
           </h1>
           <p className="text-gray-500 text-center mb-8">
-            {step === 0 && 'Start with your personal details'}
-            {step === 1 && 'Add your first child\'s information'}
-            {step === 2 && 'Review and confirm'}
+            {step === 0 && t('signup.step0Desc')}
+            {step === 1 && t('signup.step1Desc')}
+            {step === 2 && t('signup.step2Desc')}
           </p>
 
           <StepIndicator current={step} total={3} />
@@ -236,28 +240,28 @@ const Signup: FC = () => {
               {/* ── Step 1: Parent Info ── */}
               {step === 0 && (
                 <motion.div key="step0" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="space-y-4">
-                  <FormInput icon={User} label="Full Name" placeholder="Mohammed El Alami" value={parent.fullName} onChange={updateParent('fullName')} />
-                  <FormInput icon={Mail} label="Email" type="email" placeholder="you@example.com" value={parent.email} onChange={updateParent('email')} />
-                  <FormInput icon={Phone} label="Phone Number" type="tel" placeholder="+212 6XX-XXXXXX" value={parent.phone} onChange={updateParent('phone')} />
+                  <FormInput icon={User} label={t('signup.fullName')} placeholder={t('signup.fullNamePlaceholder')} value={parent.fullName} onChange={updateParent('fullName')} />
+                  <FormInput icon={Mail} label={t('signup.email')} type="email" placeholder="you@example.com" value={parent.email} onChange={updateParent('email')} />
+                  <FormInput icon={Phone} label={t('signup.phone')} type="tel" placeholder="+212 6XX-XXXXXX" value={parent.phone} onChange={updateParent('phone')} />
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.city')}</label>
                     <select
                       value={parent.city}
                       onChange={e => updateParent('city')(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
                       required
                     >
-                      <option value="">Select your city</option>
+                      <option value="">{t('signup.selectCity')}</option>
                       {moroccoCities.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
 
-                  <FormInput icon={Lock} label="Password" placeholder="Min 8 characters" value={parent.password} onChange={updateParent('password')} togglePassword />
-                  <FormInput icon={Lock} label="Confirm Password" placeholder="Repeat password" value={parent.confirmPassword} onChange={updateParent('confirmPassword')} togglePassword />
+                  <FormInput icon={Lock} label={t('signup.password')} placeholder={t('signup.passwordPlaceholder')} value={parent.password} onChange={updateParent('password')} togglePassword />
+                  <FormInput icon={Lock} label={t('signup.confirmPassword')} placeholder={t('signup.confirmPasswordPlaceholder')} value={parent.confirmPassword} onChange={updateParent('confirmPassword')} togglePassword />
 
                   {parent.password && parent.confirmPassword && parent.password !== parent.confirmPassword && (
-                    <p className="text-red-500 text-sm">Passwords do not match</p>
+                    <p className="text-red-500 text-sm">{t('signup.passwordsMismatch')}</p>
                   )}
                 </motion.div>
               )}
@@ -267,16 +271,16 @@ const Signup: FC = () => {
                 <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="space-y-4">
                   <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-2">
                     <p className="text-sm text-teal-800">
-                      <Shield className="w-4 h-4 inline mr-1.5 -mt-0.5" />
-                      Your child's data is encrypted and stored securely. You can add more children later.
+                      <Shield className="w-4 h-4 inline ml-1.5 -mt-0.5" />
+                      {t('signup.childDataNote')}
                     </p>
                   </div>
 
-                  <FormInput icon={Baby} label="Child's First Name" placeholder="Youssef" value={child.firstName} onChange={updateChild('firstName')} />
-                  <FormInput icon={User} label="Child's Last Name" placeholder="El Alami" value={child.lastName} onChange={updateChild('lastName')} />
+                  <FormInput icon={Baby} label={t('signup.childFirstName')} placeholder={t('signup.childFirstNamePlaceholder')} value={child.firstName} onChange={updateChild('firstName')} />
+                  <FormInput icon={User} label={t('signup.childLastName')} placeholder={t('signup.childLastNamePlaceholder')} value={child.lastName} onChange={updateChild('lastName')} />
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.dateOfBirth')}</label>
                     <div className="relative">
                       <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                       <input
@@ -291,7 +295,7 @@ const Signup: FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.gender')}</label>
                     <div className="grid grid-cols-2 gap-3">
                       {['Boy', 'Girl'].map(g => (
                         <button
@@ -304,7 +308,7 @@ const Signup: FC = () => {
                               : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
                           }`}
                         >
-                          {g === 'Boy' ? '👦' : '👧'} {g}
+                          {g === 'Boy' ? `👦 ${t('signup.boy')}` : `👧 ${t('signup.girl')}`}
                         </button>
                       ))}
                     </div>
@@ -318,29 +322,27 @@ const Signup: FC = () => {
                   {/* Parent summary */}
                   <div className="bg-white border border-gray-200 rounded-xl p-5">
                     <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <User className="w-4 h-4 text-teal-600" /> Parent Information
+                      <User className="w-4 h-4 text-teal-600" /> {t('signup.parentInfo')}
                     </h3>
                     <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between"><dt className="text-gray-500">Name</dt><dd className="font-medium text-gray-900">{parent.fullName}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">Email</dt><dd className="font-medium text-gray-900">{parent.email}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">Phone</dt><dd className="font-medium text-gray-900">{parent.phone}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">City</dt><dd className="font-medium text-gray-900">{parent.city}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{parent.fullName}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.email')}</dt><dd className="font-medium text-gray-900">{parent.email}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.phoneLabel')}</dt><dd className="font-medium text-gray-900">{parent.phone}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.city')}</dt><dd className="font-medium text-gray-900">{parent.city}</dd></div>
                     </dl>
                   </div>
 
-                  {/* Child summary */}
                   <div className="bg-white border border-gray-200 rounded-xl p-5">
                     <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Baby className="w-4 h-4 text-teal-600" /> Child Information
+                      <Baby className="w-4 h-4 text-teal-600" /> {t('signup.childInfo')}
                     </h3>
                     <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between"><dt className="text-gray-500">Name</dt><dd className="font-medium text-gray-900">{child.firstName} {child.lastName}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">Date of Birth</dt><dd className="font-medium text-gray-900">{child.dateOfBirth}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">Gender</dt><dd className="font-medium text-gray-900">{child.gender}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{child.firstName} {child.lastName}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.dateOfBirth')}</dt><dd className="font-medium text-gray-900">{child.dateOfBirth}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.gender')}</dt><dd className="font-medium text-gray-900">{child.gender === 'Boy' ? t('signup.boy') : t('signup.girl')}</dd></div>
                     </dl>
                   </div>
 
-                  {/* Terms */}
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -349,11 +351,11 @@ const Signup: FC = () => {
                       className="mt-1 w-4 h-4 accent-teal-600"
                     />
                     <span className="text-sm text-gray-600">
-                      I agree to the{' '}
-                      <a href="#" className="text-teal-600 hover:underline">Terms of Service</a>
-                      {' '}and{' '}
-                      <a href="#" className="text-teal-600 hover:underline">Privacy Policy</a>.
-                      I consent to my child's vaccination data being stored securely.
+                      {t('signup.termsAgree')}{' '}
+                      <a href="#" className="text-teal-600 hover:underline">{t('signup.termsOfService')}</a>
+                      {' '}{t('signup.and')}{' '}
+                      <a href="#" className="text-teal-600 hover:underline">{t('signup.privacyPolicy')}</a>.
+                      {t('signup.termsConsent')}
                     </span>
                   </label>
                 </motion.div>
@@ -368,7 +370,7 @@ const Signup: FC = () => {
                   onClick={() => setStep(step - 1)}
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200"
                 >
-                  <ArrowLeft className="w-5 h-5" /> Back
+                  <ArrowRight className="w-5 h-5" /> {t('signup.back')}
                 </button>
               )}
               <button
@@ -377,21 +379,20 @@ const Signup: FC = () => {
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl transition-all duration-300"
               >
                 {step < 2 ? (
-                  <>Next <ArrowRight className="w-5 h-5" /></>
+                  <>{t('signup.next')} <ArrowLeft className="w-5 h-5" /></>
                 ) : loading ? (
-                  'Creating account…'
+                  t('signup.creatingAccount')
                 ) : (
-                  <>Create Account <CheckCircle className="w-5 h-5" /></>
+                  <>{t('signup.createAccount')} <CheckCircle className="w-5 h-5" /></>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Sign in link */}
           <p className="text-center text-sm text-gray-500 mt-8">
-            Already have an account?{' '}
+            {t('signup.alreadyHave')}{' '}
             <Link to="/signin" className="text-teal-600 font-semibold hover:underline">
-              Sign In
+              {t('signup.signIn')}
             </Link>
           </p>
         </div>

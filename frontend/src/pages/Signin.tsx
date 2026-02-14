@@ -2,10 +2,14 @@ import { useState } from 'react'
 import type { FC, FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Mail, Lock, Eye, EyeOff, LogIn, Shield } from 'lucide-react'
 import { login, saveToken } from '../api/auth'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Signin: FC = () => {
+  const { t } = useTranslation()
+  const { dir } = useLanguage()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,14 +27,14 @@ const Signin: FC = () => {
       saveToken(access_token, token_type)
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed')
+      setError(err instanceof Error ? err.message : t('signin.errorDefault'))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/30 to-blue-50/30 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/30 to-blue-50/30 flex" dir={dir}>
       {/* Left panel — branding (large screens) */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-br from-teal-600 to-blue-600 relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-10">
@@ -48,19 +52,19 @@ const Signin: FC = () => {
           </Link>
 
           <h2 className="text-3xl font-bold mb-4 leading-tight">
-            Welcome back!
+            {t('signin.welcome')}
           </h2>
           <p className="text-white/80 text-lg leading-relaxed mb-10">
-            Sign in to continue tracking your children's vaccination journey and stay on schedule.
+            {t('signin.welcomeDesc')}
           </p>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-left">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-right">
             <div className="flex items-center gap-3 mb-3">
               <Shield className="w-6 h-6 text-teal-300" />
-              <span className="font-semibold">Secure & Private</span>
+              <span className="font-semibold">{t('signin.secureTitle')}</span>
             </div>
             <p className="text-white/70 text-sm leading-relaxed">
-              Your data is encrypted and protected. We never share your personal or health information with third parties.
+              {t('signin.secureDesc')}
             </p>
           </div>
         </div>
@@ -85,10 +89,10 @@ const Signin: FC = () => {
             transition={{ duration: 0.4 }}
           >
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
-              Sign in to your account
+              {t('signin.title')}
             </h1>
             <p className="text-gray-500 text-center mb-10">
-              Enter your credentials to access your dashboard
+              {t('signin.subtitle')}
             </p>
 
             {error && (
@@ -99,37 +103,37 @@ const Signin: FC = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signin.email')}</label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  <Mail className="absolute right-3.5 left-auto top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input
                     type="email"
                     placeholder="you@example.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                    className="w-full pr-11 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signin.password')}</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  <Lock className="absolute right-3.5 left-auto top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('signin.passwordPlaceholder')}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                    className="w-full pr-11 pl-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute left-3.5 right-auto top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -145,10 +149,10 @@ const Signin: FC = () => {
                     onChange={e => setRemember(e.target.checked)}
                     className="w-4 h-4 accent-teal-600"
                   />
-                  <span className="text-sm text-gray-600">Remember me</span>
+                  <span className="text-sm text-gray-600">{t('signin.remember')}</span>
                 </label>
                 <a href="#" className="text-sm text-teal-600 font-medium hover:underline">
-                  Forgot password?
+                  {t('signin.forgot')}
                 </a>
               </div>
 
@@ -159,15 +163,14 @@ const Signin: FC = () => {
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl transition-all duration-300"
               >
                 <LogIn className="w-5 h-5" />
-                {loading ? 'Signing in…' : 'Sign In'}
+                {loading ? t('signin.signingIn') : t('signin.submit')}
               </button>
             </form>
 
-            {/* Sign up link */}
             <p className="text-center text-sm text-gray-500 mt-8">
-              Don't have an account?{' '}
+              {t('signin.noAccount')}{' '}
               <Link to="/signup" className="text-teal-600 font-semibold hover:underline">
-                Create one for free
+                {t('signin.createFree')}
               </Link>
             </p>
           </motion.div>

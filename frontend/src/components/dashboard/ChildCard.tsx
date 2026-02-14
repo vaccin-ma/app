@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Baby, Calendar, User, ChevronLeft } from 'lucide-react'
 import type { Child } from '../../api/children'
 
@@ -22,6 +23,7 @@ export const ChildCard: FC<ChildCardProps> = ({
   onViewTimeline,
   onUpdate,
 }) => {
+  const { t } = useTranslation()
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
@@ -49,7 +51,7 @@ export const ChildCard: FC<ChildCardProps> = ({
           className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-xl hover:bg-teal-700"
         >
           <ChevronLeft className="w-4 h-4" />
-          عرض الجدول
+          {t('childCard.viewSchedule')}
         </button>
         {onUpdate && (
           <button
@@ -57,7 +59,7 @@ export const ChildCard: FC<ChildCardProps> = ({
             onClick={() => onUpdate(child)}
             className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50"
           >
-            تحديث البيانات
+            {t('childCard.updateData')}
           </button>
         )}
       </div>
