@@ -204,6 +204,78 @@ def _send_sms_twilio(to_phone: str | None, text: str) -> bool:
         return False
 
 
+def _normalize_phone_e164(phone: str | None) -> str | None:
+    """Normalize phone to E.164 for Twilio (e.g. +212612345678)."""
+    if not phone or not phone.strip():
+        return None
+    s = phone.strip().replace(" ", "").replace("-", "").replace(".", "")
+    if s.startswith("+"):
+        return s
+    if s.startswith("00"):
+        return "+" + s[2:]
+    if s.startswith("0") and len(s) == 10:
+        return "+212" + s[1:]
+    if len(s) == 9 and s.isdigit():
+        return "+212" + s
+    return "+" + s if s.isdigit() else None
+
+
+def _send_voice_call_twilio(to_phone: str | None, vaccination_id: int) -> bool:
+    """Place an outbound Twilio voice call to play the reminder (TwiML URL). Returns True if call initiated."""
+    if not settings.twilio_voice_enabled or not settings.twilio_account_sid or not settings.twilio_auth_token:
+        return False
+    if not settings.twilio_phone_number or not settings.app_base_url:
+        logger.warning("Twilio voice: twilio_phone_number or app_base_url not set")
+        return False
+    normalized = _normalize_phone_e164(to_phone)
+    if not normalized:
+        return False
+    twiml_url = f"{settings.app_base_url.rstrip('/')}/reminders/twiml/{vaccination_id}"
+    try:
+        from twilio.rest import Client
+        client = Client(settings.twilio_account_sid, settings.twilio_auth_token)
+        client.calls.create(
+            to=normalized,
+            from_=settings.twilio_phone_number,
+            url=twiml_url,
+            method="GET",
+        )
+        logger.info("Twilio voice call initiated to %s for vaccination_id=%s", normalized, vaccination_id)
+        return True
+    except Exception as e:
+        logger.warning("Twilio voice call failed: %s", e)
+        return False
+
+
+def get_twiml_for_vaccination(db: Session, vaccination_id: int) -> str:
+    """
+    Build TwiML XML for a vaccination reminder (used when Twilio fetches the TwiML URL).
+    Uses stored reminder text if we had it; otherwise generates fallback. Returns <Response>...</Response>.
+    """
+    vac = db.query(ChildVaccination).filter(ChildVaccination.id == vaccination_id).first()
+    if not vac:
+        return '<?xml version="1.0" encoding="UTF-8"?><Response><Say language="fr-FR">Rappel non trouvé.</Say></Response>'
+    child = vac.child
+    parent = child.parent
+    lang = (parent.preferred_language or "fr").strip().lower() or "fr"
+    if lang not in ("ar", "fr", "en"):
+        lang = "fr"
+    due_date = vac.due_date or date.today()
+    text = _FALLBACK_REMINDERS.get(lang, _FALLBACK_REMINDERS["fr"]).format(
+        child_name=child.name,
+        vaccine_name=vac.vaccine_name,
+        due_date_str=_format_date_readable(due_date),
+    )
+    # Escape for XML
+    text_escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    # Twilio language codes
+    twilio_lang = {"ar": "ar", "fr": "fr-FR", "en": "en-US"}.get(lang, "fr-FR")
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        f'<Response><Say language="{twilio_lang}">{text_escaped}</Say></Response>'
+    )
+
+
 # Vaccinations due within this many days before today (or today) are remindable
 REMINDABLE_DAYS = 7
 
@@ -257,6 +329,8 @@ def _process_reminders_for_vaccinations(
                 _send_email_with_attachment(parent.email, subject, text, None)
 
         _send_sms_twilio(parent.phone_number, text)
+        if settings.twilio_voice_enabled:
+            _send_voice_call_twilio(parent.phone_number, vac.id)
 
         vac.reminder_sent = True
         db.commit()

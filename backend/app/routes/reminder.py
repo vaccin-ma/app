@@ -1,13 +1,13 @@
-"""Reminder routes: manual trigger for sending vaccine reminders + serve audio."""
+"""Reminder routes: manual trigger for sending vaccine reminders + serve audio + TwiML for Twilio voice."""
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.child_vaccination import ChildVaccination
-from app.services.reminder_service import check_and_send_reminders, _media_dir
+from app.services.reminder_service import check_and_send_reminders, get_twiml_for_vaccination, _media_dir
 
 router = APIRouter()
 
@@ -37,3 +37,10 @@ def get_reminder_audio(vaccination_id: int, db: Session = Depends(get_db)):
         media_type="audio/mpeg",
         filename=Path(vac.reminder_audio_path).name,
     )
+
+
+@router.get("/twiml/{vaccination_id}")
+def get_twiml(vaccination_id: int, db: Session = Depends(get_db)):
+    """Return TwiML for Twilio voice call (Twilio fetches this URL when the call is answered)."""
+    xml = get_twiml_for_vaccination(db, vaccination_id)
+    return Response(content=xml, media_type="application/xml")
