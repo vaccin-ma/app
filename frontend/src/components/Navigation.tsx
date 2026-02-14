@@ -27,7 +27,7 @@ const Navigation = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Logo className="h-10 w-auto object-contain" />
+            <Logo className="h-16 w-auto object-contain" />
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -37,7 +37,6 @@ const Navigation = () => {
             transition={{ duration: 0.5 }}
             className="hidden md:flex items-center gap-6"
           >
-            <LanguageSwitcher />
             <a href="#features" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
               {t('nav.features')}
             </a>
@@ -47,6 +46,11 @@ const Navigation = () => {
             <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
               {t('nav.about')}
             </a>
+            
+            <div className="mx-2 w-px h-6 bg-gray-200" /> {/* Divider */}
+            
+            <LanguageSwitcher />
+            
             {isLoggedIn ? (
               <>
                 <Link
@@ -55,12 +59,6 @@ const Navigation = () => {
                 >
                   <LayoutDashboard size={18} />
                   <span>{t('nav.dashboard')}</span>
-                </Link>
-                <Link
-                  to="/admin"
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
-                >
-                  Admin
                 </Link>
               </>
             ) : (
@@ -111,12 +109,6 @@ const Navigation = () => {
                   >
                     <LayoutDashboard size={18} />
                     <span>{t('nav.dashboard')}</span>
-                  </Link>
-                  <Link
-                    to="/admin"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
-                  >
-                    Admin
                   </Link>
                 </>
               ) : (

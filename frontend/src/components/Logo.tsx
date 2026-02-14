@@ -7,7 +7,7 @@ interface LogoProps {
   linkToHome?: boolean
 }
 
-export function Logo({ className = 'h-10 w-auto object-contain', linkToHome = true }: LogoProps) {
+export function Logo({ className = 'h-16 w-auto object-contain', linkToHome = true }: LogoProps) {
   const img = (
     <>
       <img

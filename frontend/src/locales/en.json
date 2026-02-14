@@ -222,5 +222,16 @@
         "playing": "Playing…",
         "listenInfo": "Listen to description",
         "tapToLearn": "Tap a family to learn more"
+    },
+    "admin": {
+        "region": "Region",
+        "population": "Population",
+        "annualBirths": "Annual Births",
+        "coverage": "Coverage",
+        "status": "Status",
+        "safe": "Safe (≥ 95%)",
+        "warning": "Warning (85-95%)",
+        "danger": "Danger (< 85%)",
+        "risk": "At Risk"
     }
 }
