@@ -82,12 +82,10 @@ const AdminDashboard: FC = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col fixed h-full z-20">
         <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center text-center">
             <Logo className="h-12 w-auto" linkToHome={false} />
-            <div>
-              <h1 className="font-bold text-lg leading-tight">Admin</h1>
-              <p className="text-xs text-gray-500">Vaccination Monitor</p>
-            </div>
+            <h1 className="mt-3 font-bold text-lg leading-tight text-gray-900">Admin</h1>
+            <p className="text-xs text-gray-500">Vaccination Monitor</p>
           </div>
         </div>
 
