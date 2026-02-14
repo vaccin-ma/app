@@ -161,7 +161,9 @@
     },
     "periodRow": {
         "vaccinesInPeriod": "Vaccines in this period",
-        "done": "Done"
+        "done": "Done",
+        "openInNewTab": "Open audio",
+        "audioNotAvailable": "Voice reminder not available (send reminders to generate audio)."
     },
     "addChildModal": {
         "title": "Add new child",

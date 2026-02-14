@@ -161,7 +161,9 @@
     },
     "periodRow": {
         "vaccinesInPeriod": "اللقاحات في هذه الفترة",
-        "done": "تم"
+        "done": "تم",
+        "openInNewTab": "فتح الصوت",
+        "audioNotAvailable": "التذكير الصوتي غير متوفر (أرسل التذكيرات لإنشاء الصوت)."
     },
     "addChildModal": {
         "title": "إضافة طفل جديد",

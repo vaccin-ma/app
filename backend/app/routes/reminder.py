@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from app.config import settings
 from app.database import get_db
 from app.models.child_vaccination import ChildVaccination
 from app.services.reminder_service import check_and_send_reminders, _media_dir

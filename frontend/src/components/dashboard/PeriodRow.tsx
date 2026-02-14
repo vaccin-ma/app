@@ -49,6 +49,7 @@ export const PeriodRow: FC<PeriodRowProps> = ({
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(!defaultCollapsed)
   const [completing, setCompleting] = useState(false)
+  const [showAudio, setShowAudio] = useState(false)
   const status = periodStatus(items)
   const { icon: Icon, color, bg } = statusConfig[status]
   const allCompleted = items.every((v) => v.completed)
@@ -94,16 +95,15 @@ export const PeriodRow: FC<PeriodRowProps> = ({
         </button>
         {!allCompleted && anyRemindable && (
           <>
-            <a
-              href={`${API_BASE}/reminders/audio/${items[0].id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => setShowAudio((v) => !v)}
               className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors"
               title={t('journey.testVoice')}
             >
               <Volume2 className="w-4 h-4" />
               <span className="hidden sm:inline">{t('journey.testVoice')}</span>
-            </a>
+            </button>
             <button
               type="button"
               onClick={handleCompletePeriod}
@@ -117,6 +117,18 @@ export const PeriodRow: FC<PeriodRowProps> = ({
       </div>
       {expanded && (
         <div className="border-t border-gray-100 bg-white/80 p-3">
+          {showAudio && anyRemindable && (
+            <div className="mb-3 p-2 rounded-lg bg-teal-50 border border-teal-100">
+              <p className="text-xs font-medium text-teal-700 mb-1">{t('journey.testVoice')}</p>
+              <audio
+                controls
+                src={`${API_BASE}/reminders/audio/${items[0].id}`}
+                className="w-full h-9"
+              >
+                {t('periodRow.audioNotAvailable')}
+              </audio>
+            </div>
+          )}
           <p className="text-xs font-medium text-gray-500 mb-2">{t('periodRow.vaccinesInPeriod')}</p>
           <ul className="space-y-1.5">
             {items.map((item) => (
