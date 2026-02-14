@@ -1,7 +1,7 @@
 """SQLAlchemy database configuration (SQLite)."""
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker, declarative_base
 
 from app.config import settings
@@ -31,3 +31,16 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def ensure_reminder_audio_column() -> None:
+    """Add reminder_audio_path column to child_vaccinations if missing (SQLite)."""
+    if "sqlite" not in DATABASE_URL:
+        return
+    with engine.connect() as conn:
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('child_vaccinations') WHERE name = 'reminder_audio_path'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE child_vaccinations ADD COLUMN reminder_audio_path TEXT"))
+        conn.commit()
