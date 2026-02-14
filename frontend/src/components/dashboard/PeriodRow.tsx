@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronUp, Volume2 } from 'lucide-react'
 import type { TimelineItem as T } from '../../api/children'
+import { API_BASE } from '../../api/auth'
 
 function formatDueDate(d: string | null, t: ReturnType<typeof useTranslation>['t']): string {
   if (!d) return '—'
@@ -92,14 +93,26 @@ export const PeriodRow: FC<PeriodRowProps> = ({
           )}
         </button>
         {!allCompleted && anyRemindable && (
-          <button
-            type="button"
-            onClick={handleCompletePeriod}
-            disabled={completing}
-            className="flex-shrink-0 px-3 py-1.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-60"
-          >
-            {completing ? '...' : t('periodRow.done')}
-          </button>
+          <>
+            <a
+              href={`${API_BASE}/reminders/audio/${items[0].id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors"
+              title={t('journey.testVoice')}
+            >
+              <Volume2 className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('journey.testVoice')}</span>
+            </a>
+            <button
+              type="button"
+              onClick={handleCompletePeriod}
+              disabled={completing}
+              className="flex-shrink-0 px-3 py-1.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-60"
+            >
+              {completing ? '...' : t('periodRow.done')}
+            </button>
+          </>
         )}
       </div>
       {expanded && (

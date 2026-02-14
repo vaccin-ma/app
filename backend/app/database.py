@@ -1,7 +1,7 @@
 """SQLAlchemy database configuration (SQLite)."""
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker, declarative_base
 
 from app.config import settings
@@ -31,3 +31,33 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def ensure_sqlite_columns() -> None:
+    """Add missing columns to existing SQLite tables (vaccine_templates, child_vaccinations)."""
+    if "sqlite" not in DATABASE_URL:
+        return
+    with engine.connect() as conn:
+        # vaccine_templates: add vaccine_group, created_at if missing
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('vaccine_templates') WHERE name = 'vaccine_group'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE vaccine_templates ADD COLUMN vaccine_group TEXT DEFAULT ''"))
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('vaccine_templates') WHERE name = 'created_at'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE vaccine_templates ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP"))
+        # child_vaccinations: add vaccine_group, reminder_audio_path if missing
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('child_vaccinations') WHERE name = 'vaccine_group'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE child_vaccinations ADD COLUMN vaccine_group TEXT DEFAULT ''"))
+        r = conn.execute(
+            text("SELECT 1 FROM pragma_table_info('child_vaccinations') WHERE name = 'reminder_audio_path'")
+        )
+        if r.fetchone() is None:
+            conn.execute(text("ALTER TABLE child_vaccinations ADD COLUMN reminder_audio_path TEXT"))
+        conn.commit()
