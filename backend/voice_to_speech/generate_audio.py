@@ -1,0 +1,153 @@
+"""
+One-time script to generate MP3 audio files for each vaccine family description
+using ElevenLabs TTS API (eleven_multilingual_v2 model).
+
+Generates 30 files: 10 families × 3 languages (fr, en, ar)
+Output: ../../frontend/public/audio/<slug>_<lang>.mp3
+
+Usage:
+  1. Copy .env.example to .env and set your ELEVENLABS_API_KEY
+  2. pip install -r requirements.txt
+  3. python generate_audio.py
+"""
+
+import os
+import sys
+from pathlib import Path
+
+from dotenv import load_dotenv
+from elevenlabs.client import ElevenLabs
+
+# ── Load environment ─────────────────────────────────────────────
+load_dotenv(Path(__file__).parent / ".env")
+
+API_KEY = os.getenv("ELEVENLABS_API_KEY")
+if not API_KEY:
+    print("ERROR: ELEVENLABS_API_KEY not found. Copy .env.example to .env and set your key.")
+    sys.exit(1)
+
+# ── Config ───────────────────────────────────────────────────────
+VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"        # George — clear multilingual voice
+MODEL_ID = "eleven_multilingual_v2"        # supports FR, EN, AR
+OUTPUT_FORMAT = "mp3_44100_128"
+
+# Output directory: frontend/public/audio/
+OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "public" / "audio"
+
+# ── Vaccine families ─────────────────────────────────────────────
+FAMILIES = [
+    {
+        "slug": "hepatite_b",
+        "fr": "L'Hépatite B est une infection silencieuse du foie qui peut devenir chronique et causer un cancer à l'âge adulte. Ce vaccin, administré dès la naissance (24h), est la première ligne de défense vitale pour protéger le foie de votre nouveau-né contre une contamination accidentelle.",
+        "en": "Hepatitis B is a silent liver infection that can become chronic and cause cancer in adulthood. This vaccine, given at birth (within 24h), is the vital first line of defense to protect your newborn's liver against accidental contamination.",
+        "ar": "التهاب الكبد 'ب' (بوصفير) هو عدوى صامتة تصيب الكبد وقد تسبب أمراضاً مزمنة أو سرطاناً عند الكبر. هذا اللقاح، الذي يُعطى عند الولادة (خلال 24 ساعة)، هو أول خط دفاع لحماية كبد طفلك من أي عدوى محتملة وضمان مستقبل صحي له."
+    },
+    {
+        "slug": "bcg",
+        "fr": "Le BCG est le bouclier contre la Tuberculose, une bactérie qui attaque les poumons mais peut aussi toucher le cerveau des bébés (méningite). Il est normal qu'une petite boule ou croûte apparaisse sur le bras quelques semaines après : c'est le signe que le vaccin fonctionne.",
+        "en": "BCG is the shield against Tuberculosis, a bacteria that attacks the lungs but can also affect babies' brains (meningitis). It is normal for a small bump or scab to appear on the arm a few weeks later: this is a sign that the vaccine is working.",
+        "ar": "لقاح BCG هو الدرع الواقي ضد مرض السل، الذي يهاجم الرئتين ويمكن أن يصيب دماغ الرضع (التهاب السحايا). من الطبيعي أن تظهر حبة صغيرة أو قشرة في مكان الحقنة بعد بضعة أسابيع: هذه علامة جيدة تدل على أن اللقاح يعمل بفعالية."
+    },
+    {
+        "slug": "polio_orale",
+        "fr": "La Poliomyélite est une maladie virale terrible qui peut paralyser un enfant à vie. Ce vaccin 'VPO' se donne facilement par deux gouttes dans la bouche. Il renforce l'immunité de l'intestin pour empêcher le virus de passer dans le sang.",
+        "en": "Polio is a terrible viral disease that can paralyze a child for life. This 'OPV' vaccine is easily given as two drops in the mouth. It strengthens intestinal immunity to stop the virus from entering the bloodstream.",
+        "ar": "شلل الأطفال مرض فيروسي خطير يمكن أن يسبب إعاقة دائمة للطفل. يُعطى هذا اللقاح (VPO) بسهولة عبر قطرتين في الفم. إنه يعمل على تقوية مناعة الأمعاء لمنع الفيروس من الوصول إلى الدم والتسبب في الشلل."
+    },
+    {
+        "slug": "pentavalent",
+        "fr": "C'est un 'Super-Vaccin' 5-en-1. Il protège contre la Diphtérie (étouffement), le Tétanos (infection des plaies), la Coqueluche (toux convulsive), l'Hépatite B et l'Haemophilus (méningite). Il peut donner un peu de fièvre le soir, ce qui est une réaction normale du corps qui bâtit ses défenses.",
+        "en": "This is a 5-in-1 'Super-Vaccine'. It protects against Diphtheria (choking), Tetanus (wound infection), Pertussis (whooping cough), Hepatitis B, and Haemophilus (meningitis). It may cause a mild fever in the evening, which is a normal reaction as the body builds defenses.",
+        "ar": "إنه 'لقاح شامل' 5 في 1. يحمي من الدفتيريا (الخناق)، الكزاز (تسمم الجروح)، السعال الديكي (الكحبة)، التهاب الكبد 'ب'، والمستدمية النزلية (التهاب السحايا). قد يسبب قليلاً من السخونة في المساء، وهذا رد فعل طبيعي يدل على أن الجسم يبني مناعته."
+    },
+    {
+        "slug": "pneumocoque",
+        "fr": "Les pneumocoques sont des bactéries responsables de pneumonies sévères, de méningites et d'otites (infections des oreilles) douloureuses. Ce vaccin est essentiel pour éviter des infections respiratoires graves qui nécessitent souvent une hospitalisation.",
+        "en": "Pneumococci are bacteria responsible for severe pneumonia, meningitis, and painful otitis (ear infections). This vaccine is essential to prevent serious respiratory infections that often require hospitalization.",
+        "ar": "المكورات الرئوية هي بكتيريا تسبب التهابات رئوية حادة، التهاب السحايا، والتهابات الأذن المؤلمة. هذا اللقاح ضروري جداً لتجنيب طفلك عدوى تنفسية خطيرة قد تضطره لدخول المستشفى."
+    },
+    {
+        "slug": "rotavirus",
+        "fr": "Le Rotavirus est la cause n°1 des diarrhées sévères chez les bébés, menant à une déshydratation rapide. Ce vaccin oral (buvable) protège l'estomac de votre enfant et lui évite les urgences. Il est très doux et sans piqûre.",
+        "en": "Rotavirus is the #1 cause of severe diarrhea in babies, leading to rapid dehydration. This oral (drinkable) vaccine protects your child's stomach and keeps them out of the emergency room. It is very gentle and needle-free.",
+        "ar": "فيروس الروتا هو السبب الأول للإسهال الحاد عند الرضع، مما يؤدي للجفاف السريع. هذا اللقاح الفموي (يُشرب) يحمي معدة طفلك ويجنبه مخاطر الجفاف ودخول المستعجلات. إنه لقاح لطيف جداً وبدون إبرة."
+    },
+    {
+        "slug": "polio_injectable",
+        "fr": "Le VPI (Polio Injectable) vient compléter les gouttes. Il garantit une protection à 100% dans le sang. C'est la sécurité ultime pour s'assurer que votre enfant ne pourra jamais développer la maladie, même s'il voyage dans des zones à risque.",
+        "en": "IPV (Injectable Polio) complements the drops. It guarantees 100% protection in the blood. It is the ultimate security to ensure your child can never develop the disease, even if traveling to high-risk areas.",
+        "ar": "لقاح شلل الأطفال بالحقن (VPI) يكمل مفعول القطرات. إنه يضمن حماية 100% في الدم. يعتبر هذا اللقاح صمام الأمان الأخير للتأكد من أن طفلك لن يصاب أبداً بالمرض، حتى لو سافر إلى مناطق موبوءة."
+    },
+    {
+        "slug": "rougeole_rubeole",
+        "fr": "La Rougeole (Bouhamroun) est extrêmement contagieuse et peut attaquer les poumons ou le cerveau. La Rubéole est dangereuse pour les futures mamans. Ce vaccin combiné est obligatoire pour stopper les épidémies et protéger la communauté.",
+        "en": "Measles is extremely contagious and can attack the lungs or brain. Rubella is dangerous for future mothers. This combined vaccine is mandatory to stop epidemics and protect the community.",
+        "ar": "الحصبة (بوحمرون) مرض معدٍ جداً ويمكن أن يهاجم الرئتين أو الدماغ. الحصبة الألمانية خطيرة على النساء الحوامل. هذا اللقاح المركب ضروري جداً لوقف الأوبئة وحماية المجتمع من عودة هذه الأمراض الفتاكة."
+    },
+    {
+        "slug": "dtc_rappel",
+        "fr": "L'immunité des premiers vaccins diminue avec le temps. Ce rappel à 18 mois est comme une 'mise à jour' du système immunitaire. Il est crucial pour protéger votre enfant au moment où il commence à marcher, jouer dehors et se mélanger aux autres enfants.",
+        "en": "Immunity from early vaccines fades over time. This booster at 18 months is like a 'system update' for the immune system. It is crucial to protect your child as they start walking, playing outside, and mixing with other kids.",
+        "ar": "مناعة اللقاحات الأولى تنخفض مع مرور الوقت. هذه الجرعة التذكيرية في 18 شهراً هي بمثابة 'تحديث' لجهاز المناعة. إنها حاسمة لحماية طفلك في الوقت الذي يبدأ فيه بالمشي واللعب في الخارج والاختلاط بالأطفال الآخرين."
+    },
+    {
+        "slug": "hpv",
+        "fr": "Le Papillomavirus est un virus très commun qui peut causer le cancer du col de l'utérus des années plus tard. Vacciner votre fille dès 11 ans, c'est lui offrir une protection à vie contre ce cancer avant qu'elle ne soit exposée au risque.",
+        "en": "Papillomavirus is a very common virus that can cause cervical cancer years later. Vaccinating your daughter at age 11 offers her lifelong protection against this cancer before she is ever exposed to the risk.",
+        "ar": "فيروس الورم الحليمي هو فيروس شائع جداً قد يسبب سرطان عنق الرحم بعد سنوات. تلقيح ابنتك في سن 11 عاماً هو بمثابة هدية لحمايتها مدى الحياة من هذا السرطان قبل أن تتعرض لأي خطر."
+    }
+]
+
+LANGUAGES = ["fr", "en", "ar"]
+
+
+def main():
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    client = ElevenLabs(api_key=API_KEY)
+
+    total = len(FAMILIES) * len(LANGUAGES)
+    generated = 0
+    skipped = 0
+
+    print(f"Generating {total} audio files → {OUTPUT_DIR}\n")
+
+    for family in FAMILIES:
+        for lang in LANGUAGES:
+            filename = f"{family['slug']}_{lang}.mp3"
+            filepath = OUTPUT_DIR / filename
+
+            # Skip if already exists (idempotent)
+            if filepath.exists():
+                print(f"  ⏭  SKIP  {filename} (already exists)")
+                skipped += 1
+                continue
+
+            text = family[lang]
+            print(f"  🎙  Generating {filename} ...")
+
+            try:
+                audio_generator = client.text_to_speech.convert(
+                    text=text,
+                    voice_id=VOICE_ID,
+                    model_id=MODEL_ID,
+                    output_format=OUTPUT_FORMAT,
+                )
+
+                # The SDK returns a generator of bytes chunks — collect and write
+                audio_bytes = b"".join(audio_generator)
+
+                with open(filepath, "wb") as f:
+                    f.write(audio_bytes)
+
+                generated += 1
+                print(f"       ✅  Saved ({len(audio_bytes):,} bytes)")
+
+            except Exception as e:
+                print(f"       ❌  FAILED: {e}")
+
+    print(f"\nDone! Generated: {generated}, Skipped: {skipped}, Total expected: {total}")
+
+
+if __name__ == "__main__":
+    main()

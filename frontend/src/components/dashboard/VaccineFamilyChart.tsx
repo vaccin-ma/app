@@ -1,13 +1,14 @@
 import type { FC } from 'react'
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Volume2, ChevronRight, Shield, Info } from 'lucide-react'
+import { Volume2, Syringe, ChevronRight, Shield, Info } from 'lucide-react'
 import clsx from 'clsx'
 
 /* ── vaccine families ────────────────────────────────────────────── */
 interface VaccineFamily {
   name: string
+  slug: string
   doses: string[]
   color: string
   gradient: string
@@ -20,103 +21,113 @@ interface VaccineFamily {
 const FAMILIES: VaccineFamily[] = [
   {
     name: 'Hépatite B (HB)',
+    slug: 'hepatite_b',
     doses: ['HB1'],
     color: 'from-blue-500 to-blue-600',
     gradient: 'bg-blue-50 border-blue-200',
     icon: '🛡️',
-    description_fr: "L'Hépatite B est une infection virale du foie. Le vaccin HB protège votre enfant dès la naissance contre cette maladie potentiellement grave.",
-    description_en: "Hepatitis B is a viral liver infection. The HB vaccine protects your child from birth against this potentially serious disease.",
-    description_ar: "التهاب الكبد ب عدوى فيروسية تصيب الكبد. يحمي لقاح HB طفلك منذ الولادة من هذا المرض الخطير.",
+    description_fr: "L'Hépatite B est une infection silencieuse du foie qui peut devenir chronique et causer un cancer à l'âge adulte. Ce vaccin, administré dès la naissance (24h), est la première ligne de défense vitale pour protéger le foie de votre nouveau-né contre une contamination accidentelle.",
+    description_en: "Hepatitis B is a silent liver infection that can become chronic and cause cancer in adulthood. This vaccine, given at birth (within 24h), is the vital first line of defense to protect your newborn's liver against accidental contamination.",
+    description_ar: "التهاب الكبد 'ب' (بوصفير) هو عدوى صامتة تصيب الكبد وقد تسبب أمراضاً مزمنة أو سرطاناً عند الكبر. هذا اللقاح، الذي يُعطى عند الولادة (خلال 24 ساعة)، هو أول خط دفاع لحماية كبد طفلك من أي عدوى محتملة وضمان مستقبل صحي له.",
   },
   {
     name: 'BCG (Tuberculose)',
+    slug: 'bcg',
     doses: ['BCG'],
     color: 'from-amber-500 to-amber-600',
     gradient: 'bg-amber-50 border-amber-200',
     icon: '🫁',
-    description_fr: "Le BCG protège contre la tuberculose, une infection bactérienne qui touche principalement les poumons. Il est administré dans les premières semaines de vie.",
-    description_en: "BCG protects against tuberculosis, a bacterial infection that mainly affects the lungs. It is given in the first weeks of life.",
-    description_ar: "يحمي لقاح BCG من السل، وهو عدوى بكتيرية تصيب الرئتين بشكل رئيسي. يُعطى في الأسابيع الأولى من الحياة.",
+    description_fr: "Le BCG est le bouclier contre la Tuberculose, une bactérie qui attaque les poumons mais peut aussi toucher le cerveau des bébés (méningite). Il est normal qu'une petite boule ou croûte apparaisse sur le bras quelques semaines après : c'est le signe que le vaccin fonctionne.",
+    description_en: "BCG is the shield against Tuberculosis, a bacteria that attacks the lungs but can also affect babies' brains (meningitis). It is normal for a small bump or scab to appear on the arm a few weeks later: this is a sign that the vaccine is working.",
+    description_ar: "لقاح BCG هو الدرع الواقي ضد مرض السل، الذي يهاجم الرئتين ويمكن أن يصيب دماغ الرضع (التهاب السحايا). من الطبيعي أن تظهر حبة صغيرة أو قشرة في مكان الحقنة بعد بضعة أسابيع: هذه علامة جيدة تدل على أن اللقاح يعمل بفعالية.",
   },
   {
     name: 'Poliomyélite Orale (VPO)',
+    slug: 'polio_orale',
     doses: ['VPO-0', 'VPO-1', 'VPO-2', 'VPO-3', 'VPO-4', 'VPO-5'],
     color: 'from-violet-500 to-violet-600',
     gradient: 'bg-violet-50 border-violet-200',
     icon: '💧',
-    description_fr: "Le vaccin oral contre la poliomyélite protège contre le virus de la polio qui peut causer une paralysie irréversible. Plusieurs doses sont nécessaires.",
-    description_en: "The oral polio vaccine protects against the polio virus that can cause irreversible paralysis. Several doses are required.",
-    description_ar: "يحمي لقاح شلل الأطفال الفموي من فيروس شلل الأطفال الذي قد يسبب شللاً دائماً. يتطلب عدة جرعات.",
+    description_fr: "La Poliomyélite est une maladie virale terrible qui peut paralyser un enfant à vie. Ce vaccin 'VPO' se donne facilement par deux gouttes dans la bouche. Il renforce l'immunité de l'intestin pour empêcher le virus de passer dans le sang.",
+    description_en: "Polio is a terrible viral disease that can paralyze a child for life. This 'OPV' vaccine is easily given as two drops in the mouth. It strengthens intestinal immunity to stop the virus from entering the bloodstream.",
+    description_ar: "شلل الأطفال مرض فيروسي خطير يمكن أن يسبب إعاقة دائمة للطفل. يُعطى هذا اللقاح (VPO) بسهولة عبر قطرتين في الفم. إنه يعمل على تقوية مناعة الأمعاء لمنع الفيروس من الوصول إلى الدم والتسبب في الشلل.",
   },
   {
     name: 'Pentavalent (DTC-Hib-HB)',
+    slug: 'pentavalent',
     doses: ['Penta-1', 'Penta-2', 'Penta-3'],
     color: 'from-rose-500 to-rose-600',
     gradient: 'bg-rose-50 border-rose-200',
     icon: '🔬',
-    description_fr: "Le vaccin pentavalent protège contre cinq maladies: la diphtérie, le tétanos, la coqueluche, l'Haemophilus influenzae type b et l'hépatite B.",
-    description_en: "The pentavalent vaccine protects against five diseases: diphtheria, tetanus, whooping cough, Haemophilus influenzae type b, and hepatitis B.",
-    description_ar: "يحمي اللقاح الخماسي من خمسة أمراض: الدفتيريا، الكزاز، السعال الديكي، المستدمية النزلية ب، والتهاب الكبد ب.",
+    description_fr: "C'est un 'Super-Vaccin' 5-en-1. Il protège contre la Diphtérie (étouffement), le Tétanos (infection des plaies), la Coqueluche (toux convulsive), l'Hépatite B et l'Haemophilus (méningite). Il peut donner un peu de fièvre le soir, ce qui est une réaction normale du corps qui bâtit ses défenses.",
+    description_en: "This is a 5-in-1 'Super-Vaccine'. It protects against Diphtheria (choking), Tetanus (wound infection), Pertussis (whooping cough), Hepatitis B, and Haemophilus (meningitis). It may cause a mild fever in the evening, which is a normal reaction as the body builds defenses.",
+    description_ar: "إنه 'لقاح شامل' 5 في 1. يحمي من الدفتيريا (الخناق)، الكزاز (تسمم الجروح)، السعال الديكي (الكحبة)، التهاب الكبد 'ب'، والمستدمية النزلية (التهاب السحايا). قد يسبب قليلاً من السخونة في المساء، وهذا رد فعل طبيعي يدل على أن الجسم يبني مناعته.",
   },
   {
     name: 'Pneumocoque (PCV)',
+    slug: 'pneumocoque',
     doses: ['PCV-1', 'PCV-2', 'PCV-3', 'PCV-4'],
     color: 'from-cyan-500 to-cyan-600',
     gradient: 'bg-cyan-50 border-cyan-200',
     icon: '🧬',
-    description_fr: "Le vaccin pneumococcique protège contre les infections à pneumocoque qui peuvent causer des pneumonies, des méningites et des otites.",
-    description_en: "The pneumococcal vaccine protects against pneumococcal infections that can cause pneumonia, meningitis, and ear infections.",
-    description_ar: "يحمي لقاح المكورات الرئوية من العدوى التي يمكن أن تسبب التهاب الرئة والتهاب السحايا والتهاب الأذن.",
+    description_fr: "Les pneumocoques sont des bactéries responsables de pneumonies sévères, de méningites et d'otites (infections des oreilles) douloureuses. Ce vaccin est essentiel pour éviter des infections respiratoires graves qui nécessitent souvent une hospitalisation.",
+    description_en: "Pneumococci are bacteria responsible for severe pneumonia, meningitis, and painful otitis (ear infections). This vaccine is essential to prevent serious respiratory infections that often require hospitalization.",
+    description_ar: "المكورات الرئوية هي بكتيريا تسبب التهابات رئوية حادة، التهاب السحايا، والتهابات الأذن المؤلمة. هذا اللقاح ضروري جداً لتجنيب طفلك عدوى تنفسية خطيرة قد تضطره لدخول المستشفى.",
   },
   {
     name: 'Rotavirus',
+    slug: 'rotavirus',
     doses: ['Rota-1', 'Rota-2', 'Rota-3'],
     color: 'from-orange-500 to-orange-600',
     gradient: 'bg-orange-50 border-orange-200',
     icon: '🦠',
-    description_fr: "Le vaccin contre le rotavirus protège contre la cause la plus fréquente de gastro-entérite sévère chez les nourrissons et les jeunes enfants.",
-    description_en: "The rotavirus vaccine protects against the most common cause of severe gastroenteritis in infants and young children.",
-    description_ar: "يحمي لقاح الفيروس العجلي من أكثر أسباب التهاب المعدة والأمعاء الحاد شيوعاً عند الرضع والأطفال.",
+    description_fr: "Le Rotavirus est la cause n°1 des diarrhées sévères chez les bébés, menant à une déshydratation rapide. Ce vaccin oral (buvable) protège l'estomac de votre enfant et lui évite les urgences. Il est très doux et sans piqûre.",
+    description_en: "Rotavirus is the #1 cause of severe diarrhea in babies, leading to rapid dehydration. This oral (drinkable) vaccine protects your child's stomach and keeps them out of the emergency room. It is very gentle and needle-free.",
+    description_ar: "فيروس الروتا هو السبب الأول للإسهال الحاد عند الرضع، مما يؤدي للجفاف السريع. هذا اللقاح الفموي (يُشرب) يحمي معدة طفلك ويجنبه مخاطر الجفاف ودخول المستعجلات. إنه لقاح لطيف جداً وبدون إبرة.",
   },
   {
     name: 'Poliomyélite Injectable (VPI)',
+    slug: 'polio_injectable',
     doses: ['VPI-1', 'VPI-2'],
     color: 'from-indigo-500 to-indigo-600',
     gradient: 'bg-indigo-50 border-indigo-200',
     icon: '💉',
-    description_fr: "Le vaccin injectable contre la poliomyélite renforce la protection contre le virus de la polio. Il complète la protection du vaccin oral.",
-    description_en: "The injectable polio vaccine strengthens protection against the polio virus. It complements the oral vaccine protection.",
-    description_ar: "يُعزز لقاح شلل الأطفال القابل للحقن الحماية من فيروس شلل الأطفال. يكمّل حماية اللقاح الفموي.",
+    description_fr: "Le VPI (Polio Injectable) vient compléter les gouttes. Il garantit une protection à 100% dans le sang. C'est la sécurité ultime pour s'assurer que votre enfant ne pourra jamais développer la maladie, même s'il voyage dans des zones à risque.",
+    description_en: "IPV (Injectable Polio) complements the drops. It guarantees 100% protection in the blood. It is the ultimate security to ensure your child can never develop the disease, even if traveling to high-risk areas.",
+    description_ar: "لقاح شلل الأطفال بالحقن (VPI) يكمل مفعول القطرات. إنه يضمن حماية 100% في الدم. يعتبر هذا اللقاح صمام الأمان الأخير للتأكد من أن طفلك لن يصاب أبداً بالمرض، حتى لو سافر إلى مناطق موبوءة.",
   },
   {
     name: 'Rougeole-Rubéole (RR)',
+    slug: 'rougeole_rubeole',
     doses: ['RR-1', 'RR-2'],
     color: 'from-pink-500 to-pink-600',
     gradient: 'bg-pink-50 border-pink-200',
     icon: '🌡️',
-    description_fr: "Le vaccin RR protège contre la rougeole et la rubéole, deux maladies virales très contagieuses qui peuvent avoir des complications graves.",
-    description_en: "The RR vaccine protects against measles and rubella, two highly contagious viral diseases that can have serious complications.",
-    description_ar: "يحمي لقاح الحصبة والحصبة الألمانية من مرضين فيروسيين شديدي العدوى يمكن أن يكون لهما مضاعفات خطيرة.",
+    description_fr: "La Rougeole (Bouhamroun) est extrêmement contagieuse et peut attaquer les poumons ou le cerveau. La Rubéole est dangereuse pour les futures mamans. Ce vaccin combiné est obligatoire pour stopper les épidémies et protéger la communauté.",
+    description_en: "Measles is extremely contagious and can attack the lungs or brain. Rubella is dangerous for future mothers. This combined vaccine is mandatory to stop epidemics and protect the community.",
+    description_ar: "الحصبة (بوحمرون) مرض معدٍ جداً ويمكن أن يهاجم الرئتين أو الدماغ. الحصبة الألمانية خطيرة على النساء الحوامل. هذا اللقاح المركب ضروري جداً لوقف الأوبئة وحماية المجتمع من عودة هذه الأمراض الفتاكة.",
   },
   {
     name: 'DTC (Rappel)',
+    slug: 'dtc_rappel',
     doses: ['DTC-1', 'DTC-2'],
     color: 'from-emerald-500 to-emerald-600',
     gradient: 'bg-emerald-50 border-emerald-200',
     icon: '🔄',
-    description_fr: "Le rappel DTC renforce l'immunité contre la diphtérie, le tétanos et la coqueluche acquise lors de la primovaccination.",
-    description_en: "The DTC booster strengthens immunity against diphtheria, tetanus, and whooping cough acquired during primary vaccination.",
-    description_ar: "تُعزز الجرعة التنشيطية DTC المناعة ضد الدفتيريا والكزاز والسعال الديكي المكتسبة أثناء التطعيم الأولي.",
+    description_fr: "L'immunité des premiers vaccins diminue avec le temps. Ce rappel à 18 mois est comme une 'mise à jour' du système immunitaire. Il est crucial pour protéger votre enfant au moment où il commence à marcher, jouer dehors et se mélanger aux autres enfants.",
+    description_en: "Immunity from early vaccines fades over time. This booster at 18 months is like a 'system update' for the immune system. It is crucial to protect your child as they start walking, playing outside, and mixing with other kids.",
+    description_ar: "مناعة اللقاحات الأولى تنخفض مع مرور الوقت. هذه الجرعة التذكيرية في 18 شهراً هي بمثابة 'تحديث' لجهاز المناعة. إنها حاسمة لحماية طفلك في الوقت الذي يبدأ فيه بالمشي واللعب في الخارج والاختلاط بالأطفال الآخرين.",
   },
   {
     name: 'Papillomavirus (HPV)',
+    slug: 'hpv',
     doses: ['HPV'],
     color: 'from-fuchsia-500 to-fuchsia-600',
     gradient: 'bg-fuchsia-50 border-fuchsia-200',
     icon: '🎗️',
-    description_fr: "Le vaccin HPV protège contre les papillomavirus humains responsables de certains cancers. Il est recommandé à partir de 11 ans.",
-    description_en: "The HPV vaccine protects against human papillomaviruses responsible for certain cancers. It is recommended from age 11.",
-    description_ar: "يحمي لقاح HPV من فيروسات الورم الحليمي البشري المسؤولة عن بعض أنواع السرطان. يوصى به ابتداءً من سن 11 عاماً.",
+    description_fr: "Le Papillomavirus est un virus très commun qui peut causer le cancer du col de l'utérus des années plus tard. Vacciner votre fille dès 11 ans, c'est lui offrir une protection à vie contre ce cancer avant qu'elle ne soit exposée au risque.",
+    description_en: "Papillomavirus is a very common virus that can cause cervical cancer years later. Vaccinating your daughter at age 11 offers her lifelong protection against this cancer before she is ever exposed to the risk.",
+    description_ar: "فيروس الورم الحليمي هو فيروس شائع جداً قد يسبب سرطان عنق الرحم بعد سنوات. تلقيح ابنتك في سن 11 عاماً هو بمثابة هدية لحمايتها مدى الحياة من هذا السرطان قبل أن تتعرض لأي خطر.",
   },
 ]
 
@@ -124,6 +135,7 @@ export const VaccineFamilyChart: FC = () => {
   const { t, i18n } = useTranslation()
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
   const [playingIdx, setPlayingIdx] = useState<number | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const lang = i18n.language // 'fr' | 'en' | 'ar'
 
@@ -133,28 +145,38 @@ export const VaccineFamilyChart: FC = () => {
     return f.description_fr
   }
 
-  const getSpeechLang = () => {
-    if (lang === 'ar') return 'ar-MA'
-    if (lang === 'en') return 'en-US'
-    return 'fr-FR'
-  }
+  const handlePlayAudio = useCallback((idx: number) => {
+    // Stop current audio if playing
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current = null
+    }
 
-  const handlePlayAudio = (idx: number) => {
+    // Toggle off if same card clicked
     if (playingIdx === idx) {
-      speechSynthesis.cancel()
       setPlayingIdx(null)
       return
     }
-    speechSynthesis.cancel()
-    const desc = getDescription(FAMILIES[idx])
-    const utterance = new SpeechSynthesisUtterance(desc)
-    utterance.lang = getSpeechLang()
-    utterance.rate = 0.9
-    utterance.onend = () => setPlayingIdx(null)
-    utterance.onerror = () => setPlayingIdx(null)
+
+    // Play pre-generated ElevenLabs MP3
+    const family = FAMILIES[idx]
+    const audioUrl = `/audio/${family.slug}_${lang}.mp3`
+    const audio = new Audio(audioUrl)
+
+    audio.onended = () => {
+      setPlayingIdx(null)
+      audioRef.current = null
+    }
+    audio.onerror = () => {
+      setPlayingIdx(null)
+      audioRef.current = null
+    }
+
+    audioRef.current = audio
     setPlayingIdx(idx)
-    speechSynthesis.speak(utterance)
-  }
+    audio.play()
+  }, [playingIdx, lang])
 
   return (
     <motion.section
