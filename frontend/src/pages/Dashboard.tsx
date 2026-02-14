@@ -11,7 +11,8 @@ import { useChildren } from '../hooks/useChildren'
 import { useTimeline } from '../hooks/useTimeline'
 import type { Child } from '../api/children'
 import { ChildCard } from '../components/dashboard/ChildCard'
-import { Timeline } from '../components/dashboard/Timeline'
+import { VaccinationJourney } from '../components/dashboard/VaccinationJourney'
+import { VaccineFamilyChart } from '../components/dashboard/VaccineFamilyChart'
 import { AddChildModal } from '../components/dashboard/AddChildModal'
 
 const Dashboard: FC = () => {
@@ -86,10 +87,10 @@ const Dashboard: FC = () => {
               onClick={() => setSelectedChild(null)}
               className="flex items-center gap-2 text-teal-600 font-medium mb-4 hover:underline"
             >
-              <ChevronRight className="w-5 h-5" />
+              <span className="rtl:rotate-180"><ChevronRight className="w-5 h-5" /></span>
               {t('dashboard.backToChildren')}
             </button>
-            <Timeline
+            <VaccinationJourney
               items={items}
               loading={timelineLoading}
               error={timelineError}
@@ -151,6 +152,9 @@ const Dashboard: FC = () => {
             )}
           </motion.section>
         )}
+
+        {/* Vaccine families – always visible educational section */}
+        <VaccineFamilyChart />
       </main>
 
       {addModalOpen && (

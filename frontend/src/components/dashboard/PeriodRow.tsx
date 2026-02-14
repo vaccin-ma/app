@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronLeft } from 'lucide-react'
+import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react'
 import type { TimelineItem as T } from '../../api/children'
 
 function formatDueDate(d: string | null, t: ReturnType<typeof useTranslation>['t']): string {
@@ -79,14 +79,14 @@ export const PeriodRow: FC<PeriodRowProps> = ({
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between text-right min-w-0"
+          className="flex-1 flex items-center justify-between text-start min-w-0"
         >
           <span className="font-semibold text-gray-800">
             {periodLabel}
-            <span className="text-sm font-normal text-gray-500 mr-2">· {formatDueDate(dueDate, t)}</span>
+            <span className="text-sm font-normal text-gray-500 ms-2">· {formatDueDate(dueDate, t)}</span>
           </span>
           {expanded ? (
-            <ChevronLeft className="w-5 h-5 text-gray-500 flex-shrink-0" />
+            <ChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" />
           ) : (
             <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
           )}

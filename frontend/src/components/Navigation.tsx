@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LogIn, Menu, X, LayoutDashboard } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
 
@@ -11,6 +12,8 @@ const Navigation = () => {
   const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem(AUTH_TOKEN_KEY)
+  const { dir } = useLanguage()
+  const xDir = dir === 'rtl' ? 1 : -1
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
@@ -18,7 +21,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: 20 * xDir }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
@@ -34,7 +37,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: -20 * xDir }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             className="hidden md:flex items-center gap-6"

@@ -12,6 +12,10 @@ import app.models  # noqa: F401
 # Create tables automatically on startup
 Base.metadata.create_all(bind=engine)
 
+# Seed Morocco 2025 PNI schedule (no-op if already seeded)
+from app.services.seed_vaccine_templates import seed_vaccine_templates
+seed_vaccine_templates()
+
 app = FastAPI(
     title="Vaccine Reminder API",
     description="API for vaccine tracking and reminders",

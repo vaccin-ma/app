@@ -78,20 +78,20 @@ const FormInput: FC<{
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
       <div className="relative">
-        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+        <Icon className="absolute start-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
         <input
           type={inputType}
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
           required={required}
-          className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+          className="w-full ps-11 pe-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
         />
         {togglePassword && (
           <button
             type="button"
             onClick={() => setShowPw(!showPw)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
             {showPw ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -164,10 +164,11 @@ const Signup: FC = () => {
   }
 
   /* ─── slide variants ─── */
+  const slideDir = dir === 'rtl' ? -1 : 1
   const variants = {
-    enter: { x: 60, opacity: 0 },
+    enter: { x: 60 * slideDir, opacity: 0 },
     center: { x: 0, opacity: 1 },
-    exit: { x: -60, opacity: 0 }
+    exit: { x: -60 * slideDir, opacity: 0 }
   }
 
   return (
@@ -195,7 +196,7 @@ const Signup: FC = () => {
             {t('signup.joinDesc')}
           </p>
 
-          <div className="space-y-4 text-right">
+          <div className="space-y-4 text-start">
             {[t('signup.bullet0'), t('signup.bullet1'), t('signup.bullet2')].map((text, i) => (
               <div key={i} className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-teal-300 flex-shrink-0" />
@@ -271,7 +272,7 @@ const Signup: FC = () => {
                 <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="space-y-4">
                   <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-2">
                     <p className="text-sm text-teal-800">
-                      <Shield className="w-4 h-4 inline ml-1.5 -mt-0.5" />
+                      <Shield className="w-4 h-4 inline me-1.5 -mt-0.5" />
                       {t('signup.childDataNote')}
                     </p>
                   </div>
@@ -370,7 +371,7 @@ const Signup: FC = () => {
                   onClick={() => setStep(step - 1)}
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200"
                 >
-                  <ArrowRight className="w-5 h-5" /> {t('signup.back')}
+                  <ArrowLeft className="w-5 h-5 rtl:rotate-180" /> {t('signup.back')}
                 </button>
               )}
               <button
@@ -379,7 +380,7 @@ const Signup: FC = () => {
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl transition-all duration-300"
               >
                 {step < 2 ? (
-                  <>{t('signup.next')} <ArrowLeft className="w-5 h-5" /></>
+                  <>{t('signup.next')} <ArrowRight className="w-5 h-5 rtl:rotate-180" /></>
                 ) : loading ? (
                   t('signup.creatingAccount')
                 ) : (

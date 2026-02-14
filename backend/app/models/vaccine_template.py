@@ -11,8 +11,9 @@ class VaccineTemplate(Base):
     __tablename__ = "vaccine_templates"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    period_label: Mapped[str] = mapped_column(String, nullable=False)  # e.g. 'Week 6', 'Month 2'
+    period_label: Mapped[str] = mapped_column(String, nullable=False)  # e.g. '8 sem (~2 mois)'
     vaccine_name: Mapped[str] = mapped_column(String, nullable=False)
+    vaccine_group: Mapped[str] = mapped_column(String, nullable=False, default="")  # e.g. 'Hépatite B (HB)'
     offset_days: Mapped[int] = mapped_column(Integer, nullable=False)  # days after birth
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

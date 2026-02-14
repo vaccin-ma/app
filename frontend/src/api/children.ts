@@ -16,6 +16,7 @@ export interface Child {
 export interface TimelineItem {
   id: number
   vaccine_name: string
+  vaccine_group: string
   period_label: string
   due_date: string | null
   completed: boolean

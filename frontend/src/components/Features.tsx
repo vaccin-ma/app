@@ -66,7 +66,7 @@ const Features = () => {
                 {/* Learn More */}
                 <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${feature.iconColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                   {t('features.learnMore')}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1 transition-transform" />
                 </span>
               </motion.div>
             )

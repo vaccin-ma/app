@@ -32,6 +32,7 @@ class VaccinationTimelineItem(BaseModel):
 
     id: int
     vaccine_name: str
+    vaccine_group: str
     period_label: str
     due_date: date | None
     completed: bool

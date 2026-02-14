@@ -15,6 +15,7 @@ class ChildVaccination(Base):
         Integer, ForeignKey("children.id"), nullable=False
     )
     vaccine_name: Mapped[str] = mapped_column(String, nullable=False)
+    vaccine_group: Mapped[str] = mapped_column(String, nullable=False, default="")  # e.g. 'Hépatite B (HB)'
     period_label: Mapped[str] = mapped_column(String, nullable=False)
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

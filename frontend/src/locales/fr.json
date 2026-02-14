@@ -194,5 +194,28 @@
     "tomorrow": "Demain",
     "inDays": "Dans {{count}} jours",
     "completedAt": "Effectué le {{date}}"
+  },
+  "journey": {
+    "completed": "Terminé",
+    "current": "En cours",
+    "upcoming": "À venir",
+    "overdue": "En retard",
+    "markDone": "Marquer comme fait",
+    "testVoice": "Tester le rappel vocal",
+    "vaccinesDone": "{{done}} sur {{total}} vaccins effectués",
+    "percentComplete": "{{percent}}% terminé",
+    "daysOverdue": "{{count}} jours de retard",
+    "daysUntil": "Dans {{count}} jours",
+    "today": "Aujourd'hui"
+  },
+  "families": {
+    "title": "Familles de vaccins",
+    "subtitle": "Découvrez chaque vaccin et écoutez sa description",
+    "family": "Famille",
+    "doses": "Doses",
+    "audio": "Audio",
+    "playing": "Lecture en cours…",
+    "listenInfo": "Écouter la description",
+    "tapToLearn": "Appuyez sur une famille pour en savoir plus"
   }
 }

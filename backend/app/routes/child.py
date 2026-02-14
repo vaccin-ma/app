@@ -68,6 +68,7 @@ def create_child(
                 ChildVaccination(
                     child_id=child.id,
                     vaccine_name=template.vaccine_name,
+                    vaccine_group=template.vaccine_group,
                     period_label=template.period_label,
                     due_date=due_date,
                     completed=False,
@@ -126,6 +127,7 @@ def get_child_timeline(
                 ChildVaccination(
                     child_id=child.id,
                     vaccine_name=template.vaccine_name,
+                    vaccine_group=template.vaccine_group,
                     period_label=template.period_label,
                     due_date=due_date,
                     completed=False,
@@ -143,6 +145,7 @@ def get_child_timeline(
         VaccinationTimelineItem(
             id=v.id,
             vaccine_name=v.vaccine_name,
+            vaccine_group=v.vaccine_group,
             period_label=v.period_label,
             due_date=v.due_date,
             completed=v.completed,

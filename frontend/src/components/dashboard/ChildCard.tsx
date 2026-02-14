@@ -1,21 +1,15 @@
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Baby, Calendar, User, ChevronLeft } from 'lucide-react'
+import { Baby, Calendar, User, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Child } from '../../api/children'
+import { useLanguage } from '../../contexts/LanguageContext'
+
+const localeMap: Record<string, string> = { en: 'en-US', ar: 'ar-MA', fr: 'fr-FR' }
 
 interface ChildCardProps {
   child: Child
   onViewTimeline: (child: Child) => void
   onUpdate?: (child: Child) => void
-}
-
-function formatDate(s: string | null): string {
-  if (!s) return '—'
-  return new Date(s).toLocaleDateString('ar-MA', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
 }
 
 export const ChildCard: FC<ChildCardProps> = ({
@@ -24,6 +18,19 @@ export const ChildCard: FC<ChildCardProps> = ({
   onUpdate,
 }) => {
   const { t } = useTranslation()
+  const { locale, dir } = useLanguage()
+
+  const formatDate = (s: string | null): string => {
+    if (!s) return '—'
+    return new Date(s).toLocaleDateString(localeMap[locale] ?? locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
+  const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
@@ -50,7 +57,7 @@ export const ChildCard: FC<ChildCardProps> = ({
           onClick={() => onViewTimeline(child)}
           className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-xl hover:bg-teal-700"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <Chevron className="w-4 h-4" />
           {t('childCard.viewSchedule')}
         </button>
         {onUpdate && (
