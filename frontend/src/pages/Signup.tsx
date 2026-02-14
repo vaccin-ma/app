@@ -1,11 +1,13 @@
 import { useState, Fragment } from 'react'
 import type { FC, ElementType, FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Shield, ArrowRight, ArrowLeft, Eye, EyeOff,
   User, Mail, Phone, Lock, Baby, Calendar, CheckCircle
 } from 'lucide-react'
+import { register, login, saveToken } from '../api/auth'
+import { createChild } from '../api/children'
 
 /* ─── types ─── */
 interface ParentData {
@@ -99,6 +101,7 @@ const FormInput: FC<{
 
 /* ─── page ─── */
 const Signup: FC = () => {
+  const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [parent, setParent] = useState<ParentData>({
     fullName: '', email: '', phone: '', city: '', password: '', confirmPassword: ''
@@ -107,6 +110,8 @@ const Signup: FC = () => {
     firstName: '', lastName: '', dateOfBirth: '', gender: ''
   })
   const [agreed, setAgreed] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const updateParent = (field: keyof ParentData) => (v: string) =>
     setParent(prev => ({ ...prev, [field]: v }))
@@ -123,11 +128,35 @@ const Signup: FC = () => {
     return agreed
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (step < 2) { setStep(step + 1); return }
-    // TODO: API call
-    alert('Account created successfully! 🎉')
+    setError('')
+    setLoading(true)
+    try {
+      await register({
+        name: parent.fullName,
+        email: parent.email,
+        password: parent.password,
+        phone_number: parent.phone || null,
+      })
+      const { access_token, token_type } = await login({
+        email: parent.email,
+        password: parent.password,
+      })
+      saveToken(access_token, token_type)
+      // Create the child from step 1 so parent + child are linked
+      await createChild({
+        name: `${child.firstName} ${child.lastName}`.trim(),
+        birthdate: child.dateOfBirth,
+        gender: child.gender || null,
+      })
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   /* ─── slide variants ─── */
@@ -197,6 +226,11 @@ const Signup: FC = () => {
 
           <StepIndicator current={step} total={3} />
 
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-4">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait">
               {/* ── Step 1: Parent Info ── */}
@@ -339,11 +373,13 @@ const Signup: FC = () => {
               )}
               <button
                 type="submit"
-                disabled={!canProceed()}
+                disabled={!canProceed() || loading}
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl transition-all duration-300"
               >
                 {step < 2 ? (
                   <>Next <ArrowRight className="w-5 h-5" /></>
+                ) : loading ? (
+                  'Creating account…'
                 ) : (
                   <>Create Account <CheckCircle className="w-5 h-5" /></>
                 )}

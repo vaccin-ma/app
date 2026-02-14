@@ -1,19 +1,32 @@
 import { useState } from 'react'
 import type { FC, FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, LogIn, Shield } from 'lucide-react'
+import { login, saveToken } from '../api/auth'
 
 const Signin: FC = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // TODO: API call
-    alert('Signed in successfully! 🎉')
+    setError('')
+    setLoading(true)
+    try {
+      const { access_token, token_type } = await login({ email, password })
+      saveToken(access_token, token_type)
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -78,6 +91,11 @@ const Signin: FC = () => {
               Enter your credentials to access your dashboard
             </p>
 
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email */}
               <div>
@@ -137,11 +155,11 @@ const Signin: FC = () => {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={!email || !password}
+                disabled={!email || !password || loading}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-xl transition-all duration-300"
               >
                 <LogIn className="w-5 h-5" />
-                Sign In
+                {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
 

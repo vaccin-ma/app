@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { LogIn, Menu, X } from 'lucide-react'
+import { LogIn, Menu, X, LayoutDashboard } from 'lucide-react'
+
+const AUTH_TOKEN_KEY = 'vaccitrack_access_token'
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem(AUTH_TOKEN_KEY)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
@@ -42,13 +45,23 @@ const Navigation = () => {
             <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium transition-colors duration-300">
               About
             </a>
-            <Link
-              to="/signin"
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-            >
-              <LogIn size={18} />
-              <span>Sign In</span>
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              >
+                <LayoutDashboard size={18} />
+                <span>لوحة التحكم</span>
+              </Link>
+            ) : (
+              <Link
+                to="/signin"
+                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              >
+                <LogIn size={18} />
+                <span>Sign In</span>
+              </Link>
+            )}
           </motion.div>
 
           {/* Mobile Menu Button */}
@@ -77,13 +90,23 @@ const Navigation = () => {
               <a href="#about" className="text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors">
                 About
               </a>
-              <Link
-                to="/signin"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
-              >
-                <LogIn size={18} />
-                <span>Sign In</span>
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  to="/dashboard"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
+                >
+                  <LayoutDashboard size={18} />
+                  <span>لوحة التحكم</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/signin"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold rounded-lg shadow-md"
+                >
+                  <LogIn size={18} />
+                  <span>Sign In</span>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
