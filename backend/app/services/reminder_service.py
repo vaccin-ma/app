@@ -1,5 +1,20 @@
 """Vaccine reminder service: AI text (Minimax), voice (ElevenLabs), store, email, SMS."""
-from datetime import date
+import logging
+from datetime import date, timedelta
+
+# Month names in English for AI-readable date in prompts (e.g. "23 March 2023")
+_MONTH_NAMES = (
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+)
+
+
+def _format_date_readable(d: date) -> str:
+    """Format date for AI prompts, e.g. '23 March 2023' (readable, unambiguous)."""
+    return f"{d.day} {_MONTH_NAMES[d.month - 1]} {d.year}"
+
+
+logger = logging.getLogger(__name__)
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -28,33 +43,44 @@ def _media_dir() -> Path:
 
 
 def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date: date) -> str:
-    """Generate friendly reminder text in Darija using Minimax LLM."""
+    """Generate friendly reminder text in Arabic Fusha (Modern Standard Arabic) using Minimax LLM."""
+    due_date_str = _format_date_readable(due_date)
     if not settings.minimax_api_key:
         return (
-            f"Bghiti tfdker: drari {child_name} khassu yjib {vaccine_name} l-yum ({due_date}). "
-            "Nqrawek b had l-wqt. Shokran."
+            f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {due_date_str}). "
+            "نقدر لكم حرصكم. شكراً."
         )
+    fallback = (
+        f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {due_date_str}). شكراً."
+    )
     url = f"{settings.minimax_base_url.rstrip('/')}/v1/text/chatcompletion_v2"
     headers = {
         "Authorization": f"Bearer {settings.minimax_api_key}",
         "Content-Type": "application/json",
     }
     prompt = (
-        f"Generate a short, polite, friendly reminder in Darija (Moroccan Arabic) for a parent "
-        f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date}). "
-        "One or two sentences only. Do not use English."
+        f"Generate a short, polite, friendly reminder in Arabic Fusha (Modern Standard Arabic / الفصحى) for a parent "
+        f"that their child {child_name} needs the vaccine '{vaccine_name}' today (due date: {due_date_str}). "
+        "One or two sentences only. Use only Arabic (الفصحى). Do not use English or dialect."
     )
+    # Message "name" is optional but included per Minimax doc example (M2-her)
     payload: dict[str, Any] = {
         "model": "M2-her",
         "messages": [
-            {"role": "system", "content": "You write very short reminders in Darija for parents about child vaccines."},
-            {"role": "user", "content": prompt},
+            {"role": "system", "name": "MiniMax AI", "content": "You write very short reminders in Arabic Fusha (الفصحى) for parents about child vaccines. Use only Modern Standard Arabic."},
+            {"role": "user", "name": "User", "content": prompt},
         ],
     }
     try:
         resp = requests.post(url, json=payload, headers=headers, timeout=30)
         resp.raise_for_status()
         data = resp.json()
+        base = data.get("base_resp") or {}
+        status_code = base.get("status_code")
+        if status_code not in (0, None):
+            msg = base.get("status_msg") or "Minimax API error"
+            logger.warning("Minimax API returned status_code=%s: %s. Using fallback text.", status_code, msg)
+            return fallback
         choices = data.get("choices") or []
         if choices:
             msg = choices[0].get("message")
@@ -62,14 +88,14 @@ def _generate_reminder_text_minimax(child_name: str, vaccine_name: str, due_date
                 content = msg.get("content") or ""
                 if isinstance(content, str) and content.strip():
                     return content.strip()
-        base = data.get("base_resp") or {}
-        if base.get("status_code") not in (0, None):
-            raise ValueError(base.get("status_msg") or "Minimax API error")
+        logger.warning("Minimax API returned no content in choices. Using fallback text.")
+        return fallback
     except requests.RequestException as e:
-        raise RuntimeError(f"Minimax request failed: {e}") from e
-    return (
-        f"Bghiti tfdker: drari {child_name} khassu yjib {vaccine_name} l-yum ({due_date}). Shokran."
-    )
+        logger.warning("Minimax request failed: %s. Using fallback text.", e)
+        return fallback
+    except Exception as e:
+        logger.warning("Minimax unexpected error: %s. Using fallback text.", e)
+        return fallback
 
 
 def _generate_voice_elevenlabs(text: str) -> bytes | None:
@@ -147,27 +173,18 @@ def _send_sms_twilio(to_phone: str | None, text: str) -> bool:
         return False
 
 
-def check_and_send_reminders(db: Session) -> list[dict[str, Any]]:
-    """
-    Fetch all remindable, unsent, due vaccinations; generate text (Minimax), optionally
-    voice (ElevenLabs), save audio to disk, send email with attachment and/or SMS,
-    mark reminder_sent/voice_sent, return list of sent reminders with audio_url.
-    """
-    today = date.today()
-    media_root = _media_dir()
-    q = (
-        db.query(ChildVaccination)
-        .join(Child, ChildVaccination.child_id == Child.id)
-        .filter(
-            ChildVaccination.completed.is_(False),
-            ChildVaccination.remindable.is_(True),
-            ChildVaccination.reminder_sent.is_(False),
-            ChildVaccination.due_date <= today,
-        )
-    )
-    vaccinations = q.all()
-    sent: list[dict[str, Any]] = []
+# Vaccinations due within this many days before today (or today) are remindable
+REMINDABLE_DAYS = 7
 
+
+def _process_reminders_for_vaccinations(
+    db: Session,
+    vaccinations: list[ChildVaccination],
+    media_root: Path,
+) -> list[dict[str, Any]]:
+    """Generate text, voice, save audio, send email/SMS, mark reminder_sent for each vaccination. Returns list of sent items."""
+    today = date.today()
+    sent: list[dict[str, Any]] = []
     for vac in vaccinations:
         child = vac.child
         parent = child.parent
@@ -175,15 +192,13 @@ def check_and_send_reminders(db: Session) -> list[dict[str, Any]]:
         vaccine_name = vac.vaccine_name
         due_date = vac.due_date or today
 
-        # Generate reminder text (Minimax)
         try:
             text = _generate_reminder_text_minimax(child_name, vaccine_name, due_date)
         except Exception:
             text = (
-                f"Bghiti tfdker: drari {child_name} khassu yjib {vaccine_name} l-yum ({due_date}). Shokran."
+                f"تذكير: يحتاج طفلك {child_name} إلى لقاح {vaccine_name} اليوم (تاريخ الاستحقاق: {_format_date_readable(due_date)}). شكراً."
             )
 
-        # Generate voice (ElevenLabs) and store + send
         audio = _generate_voice_elevenlabs(text)
         reminder_audio_path: str | None = None
         if audio is not None:
@@ -205,7 +220,6 @@ def check_and_send_reminders(db: Session) -> list[dict[str, Any]]:
                 subject = f"Rappel vaccin: {vaccine_name} pour {child_name}"
                 _send_email_with_attachment(parent.email, subject, text, None)
 
-        # SMS (text only)
         _send_sms_twilio(parent.phone_number, text)
 
         vac.reminder_sent = True
@@ -221,5 +235,53 @@ def check_and_send_reminders(db: Session) -> list[dict[str, Any]]:
             item["reminder_audio_path"] = reminder_audio_path
             item["audio_url"] = f"/reminders/audio/{vac.id}"
         sent.append(item)
-
     return sent
+
+
+def check_and_send_reminders(db: Session) -> list[dict[str, Any]]:
+    """
+    Fetch all remindable, unsent, due vaccinations; generate text (Minimax), optionally
+    voice (ElevenLabs), save audio to disk, send email with attachment and/or SMS,
+    mark reminder_sent/voice_sent, return list of sent reminders with audio_url.
+    Only includes vaccinations whose due_date is in [today - REMINDABLE_DAYS, today].
+    """
+    today = date.today()
+    cutoff = today - timedelta(days=REMINDABLE_DAYS)
+    media_root = _media_dir()
+    q = (
+        db.query(ChildVaccination)
+        .join(Child, ChildVaccination.child_id == Child.id)
+        .filter(
+            ChildVaccination.completed.is_(False),
+            ChildVaccination.reminder_sent.is_(False),
+            ChildVaccination.due_date.isnot(None),
+            ChildVaccination.due_date <= today,
+            ChildVaccination.due_date >= cutoff,
+        )
+    )
+    vaccinations = q.all()
+    return _process_reminders_for_vaccinations(db, vaccinations, media_root)
+
+
+def check_and_send_reminders_for_child(db: Session, child_id: int) -> list[dict[str, Any]]:
+    """
+    Generate and send reminders (including voice) for a single child's due/overdue vaccinations.
+    Call this right after adding a child so that any vaccines already due get their voice created immediately.
+    """
+    today = date.today()
+    cutoff = today - timedelta(days=REMINDABLE_DAYS)
+    media_root = _media_dir()
+    q = (
+        db.query(ChildVaccination)
+        .join(Child, ChildVaccination.child_id == Child.id)
+        .filter(
+            Child.id == child_id,
+            ChildVaccination.completed.is_(False),
+            ChildVaccination.reminder_sent.is_(False),
+            ChildVaccination.due_date.isnot(None),
+            ChildVaccination.due_date <= today,
+            ChildVaccination.due_date >= cutoff,
+        )
+    )
+    vaccinations = q.all()
+    return _process_reminders_for_vaccinations(db, vaccinations, media_root)

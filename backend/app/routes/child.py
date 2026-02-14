@@ -15,6 +15,7 @@ from app.schemas.child import (
     ChildUpdate,
     VaccinationTimelineItem,
 )
+from app.services.reminder_service import check_and_send_reminders_for_child
 from app.utils.dependencies import get_current_user
 
 router = APIRouter()
@@ -76,6 +77,9 @@ def create_child(
                 )
             )
         db.commit()
+
+        # If this child has due/overdue vaccines (e.g. birthdate in the past), generate voice right away
+        check_and_send_reminders_for_child(db, child.id)
 
     return child
 

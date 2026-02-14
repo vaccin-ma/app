@@ -28,13 +28,13 @@ class Settings(BaseSettings):
     app_name: str = "Vaccine Reminder API"
     debug: bool = False
 
-    # Reminder service: Minimax LLM (Darija text) — set via .env
+    # Reminder service: Minimax LLM (Arabic Fusha text) — set via .env
     minimax_api_key: str = ""
     minimax_base_url: str = "https://api.minimax.io"
 
     # Reminder service: ElevenLabs voice (optional) — set via .env
     elevenlabs_api_key: str = ""
-    elevenlabs_voice_id: str = "PmGnwGtnBs40iau7JfoF"
+    elevenlabs_voice_id: str = "oUCSlKjkoFDoKamPHpAV"
     reminder_send_voice: bool = True
 
     # Email (SMTP) — for sending reminder emails with voice attachment
