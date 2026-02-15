@@ -18,7 +18,7 @@ def register(parent_in: ParentCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     parent = Parent(
-        name=parent_in.name,
+        name=parent_in.name or "Parent",
         email=parent_in.email,
         password_hash=hash_password(parent_in.password),
         phone_number=parent_in.phone_number,

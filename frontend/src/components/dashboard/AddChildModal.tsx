@@ -8,14 +8,15 @@ interface AddChildModalProps {
   onSubmit: (payload: CreateChildPayload) => Promise<unknown>
   /** When set, modal is in edit mode: prefilled with child data and submit updates instead of create. */
   initialChild?: Child | null
+  /** Number of existing children (for add mode: new child will be "Child N"). */
+  childCount?: number
   /** Called when user confirms delete in edit mode. */
   onDelete?: (child: Child) => Promise<unknown>
 }
 
-export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initialChild, onDelete }) => {
+export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initialChild, childCount = 0, onDelete }) => {
   const { t } = useTranslation()
   const isEdit = !!initialChild
-  const [name, setName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [gender, setGender] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -24,11 +25,9 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initi
 
   useEffect(() => {
     if (initialChild) {
-      setName(initialChild.name)
       setBirthdate(initialChild.birthdate ? initialChild.birthdate.slice(0, 10) : '')
       setGender(initialChild.gender ?? '')
     } else {
-      setName('')
       setBirthdate('')
       setGender('')
     }
@@ -39,6 +38,7 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initi
     setError('')
     setLoading(true)
     try {
+      const name = isEdit ? initialChild!.name : t('addChildModal.childNumber', { n: childCount + 1 })
       await onSubmit({ name, birthdate, gender: gender || null })
       onClose()
     } catch (err) {
@@ -86,17 +86,6 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initi
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('addChildModal.name')}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              placeholder={t('addChildModal.namePlaceholder')}
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('addChildModal.dateOfBirth')}</label>
             <input
               type="date"
@@ -138,7 +127,7 @@ export const AddChildModal: FC<AddChildModalProps> = ({ onClose, onSubmit, initi
             </button>
             <button
               type="submit"
-              disabled={loading || !name || (!isEdit && !birthdate)}
+              disabled={loading || (!isEdit && !birthdate)}
               className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 disabled:opacity-50"
             >
               {loading

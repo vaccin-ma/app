@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Bell, ExternalLink, Play, Pause, Trash2 } from 'lucide-react'
 import { API_BASE } from '../../api/auth'
 import { getNotifications, deleteNotification, type NotificationItem } from '../../api/notifications'
+import { getSchedulePeriodLabel } from '../../utils/schedulePeriodLabel'
 
 interface NotificationBellProps {
   onViewTimeline?: (childId: number) => void
@@ -165,7 +166,7 @@ export function NotificationBell({ onViewTimeline }: NotificationBellProps) {
                         <p className="font-medium text-gray-900 truncate">
                           {item.child_name} · {item.vaccine_name}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">{item.period_label}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{getSchedulePeriodLabel(item.period_label, t)}</p>
                         <div className="flex flex-wrap items-center gap-2 mt-2">
                           {onViewTimeline && (
                             <button

@@ -69,5 +69,8 @@ class Settings(BaseSettings):
     # CORS: origins allowed to access the API (comma-separated in env, or default below)
     cors_origins: str = "http://localhost:5173,http://localhost:3000,https://jelba.vercel.app"
 
+    # Set to true to replace vaccine_templates and child_vaccinations with current SCHEDULE on startup (one-time)
+    replace_vaccine_templates: bool = False
+
 
 settings = Settings()

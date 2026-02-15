@@ -16,6 +16,7 @@ import { Timeline } from '../components/dashboard/Timeline'
 import { VaccineFamilyChart } from '../components/dashboard/VaccineFamilyChart'
 import { AddChildModal } from '../components/dashboard/AddChildModal'
 import { NotificationBell } from '../components/dashboard/NotificationBell'
+import { getChildDisplayName } from '../utils/childDisplayName'
 
 const Dashboard: FC = () => {
   const navigate = useNavigate()
@@ -109,7 +110,7 @@ const Dashboard: FC = () => {
               loading={timelineLoading}
               error={timelineError}
               onCompletePeriod={markCompletePeriod}
-              childName={selectedChild.name}
+              childName={getChildDisplayName(selectedChild.name, t)}
             />
           </motion.section>
         ) : (
@@ -173,6 +174,7 @@ const Dashboard: FC = () => {
 
       {addModalOpen && (
         <AddChildModal
+          childCount={children.length}
           onClose={() => setAddModalOpen(false)}
           onSubmit={async (payload) => {
             await addChild(payload)

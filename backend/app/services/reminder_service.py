@@ -49,6 +49,13 @@ _FALLBACK_REMINDERS = {
     "en": "Reminder: your child {child_name} is due for the {vaccine_name} vaccine today (due date: {due_date_str}). Thank you.",
 }
 
+# Fallback for one voice per period (multiple vaccines in same period)
+_FALLBACK_REMINDERS_PERIOD = {
+    "ar": "تذكير: يحتاج طفلك {child_name} إلى اللقاحات التالية لفترة {period_label}: {vaccine_list}. تاريخ الاستحقاق: {due_date_str}. شكراً.",
+    "fr": "Rappel : votre enfant {child_name} doit recevoir les vaccins suivants pour la période {period_label} : {vaccine_list}. Date prévue : {due_date_str}. Merci.",
+    "en": "Reminder: your child {child_name} is due for the following vaccines for {period_label}: {vaccine_list}. Due date: {due_date_str}. Thank you.",
+}
+
 
 def _generate_reminder_text_minimax(
     lang: str, child_name: str, vaccine_name: str, due_date: date
@@ -119,6 +126,73 @@ def _generate_reminder_text_minimax(
         return fallback
 
 
+def _generate_reminder_text_for_period(
+    lang: str, child_name: str, period_label: str, vaccine_names: list[str], due_date: date
+) -> str:
+    """Generate one reminder text for a period with multiple vaccines (one voice per period)."""
+    due_date_str = _format_date_readable(due_date)
+    lang = lang if lang in ("ar", "fr", "en") else "fr"
+    vaccine_list = ", ".join(vaccine_names)
+    fallback = _FALLBACK_REMINDERS_PERIOD.get(lang, _FALLBACK_REMINDERS_PERIOD["fr"]).format(
+        child_name=child_name,
+        period_label=period_label,
+        vaccine_list=vaccine_list,
+        due_date_str=due_date_str,
+    )
+    if not settings.minimax_api_key or len(vaccine_names) == 0:
+        return fallback
+    url = f"{settings.minimax_base_url.rstrip('/')}/v1/text/chatcompletion_v2"
+    headers = {
+        "Authorization": f"Bearer {settings.minimax_api_key}",
+        "Content-Type": "application/json",
+    }
+    vaccines_str = ", ".join(vaccine_names)
+    if lang == "ar":
+        prompt = (
+            f"Generate a short, polite reminder in Arabic Fusha for a parent "
+            f"that their child {child_name} needs the following vaccines for period {period_label}: {vaccines_str}. "
+            f"Due date: {due_date_str}. One or two sentences only. Use only Modern Standard Arabic."
+        )
+    elif lang == "fr":
+        prompt = (
+            f"Génère un court rappel poli en français pour un parent : son enfant {child_name} "
+            f"doit recevoir les vaccins suivants pour la période {period_label} : {vaccines_str}. "
+            f"Date prévue : {due_date_str}. Une ou deux phrases seulement. En français uniquement."
+        )
+    else:
+        prompt = (
+            f"Generate a short, polite reminder in English for a parent "
+            f"that their child {child_name} is due for the following vaccines for {period_label}: {vaccines_str}. "
+            f"Due date: {due_date_str}. One or two sentences only. Use only English."
+        )
+    system = "You write very short reminders for parents about child vaccines."
+    payload: dict[str, Any] = {
+        "model": settings.minimax_model,
+        "messages": [
+            {"role": "system", "name": "MiniMax AI", "content": system},
+            {"role": "user", "name": "User", "content": prompt},
+        ],
+    }
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        base = data.get("base_resp") or {}
+        if base.get("status_code") not in (0, None):
+            return fallback
+        choices = data.get("choices") or []
+        if choices:
+            msg = choices[0].get("message")
+            if isinstance(msg, dict):
+                content = msg.get("content") or ""
+                if isinstance(content, str) and content.strip():
+                    return content.strip()
+        return fallback
+    except Exception as e:
+        logger.warning("Minimax request failed for period reminder: %s. Using fallback.", e)
+        return fallback
+
+
 def _get_voice_id_for_lang(lang: str) -> str:
     """Return ElevenLabs voice ID for the given language (ar/fr/en). Falls back to default if not set."""
     lang = lang if lang in ("ar", "fr", "en") else "fr"
@@ -152,6 +226,16 @@ def _save_reminder_audio(vaccination_id: int, audio: bytes) -> str:
     """Save audio to media dir, return relative path for DB (e.g. vac_1_20260114.mp3)."""
     root = _media_dir()
     safe_name = f"vac_{vaccination_id}_{date.today().isoformat().replace('-', '')}.mp3"
+    file_path = root / safe_name
+    file_path.write_bytes(audio)
+    return safe_name
+
+
+def _save_reminder_audio_period(child_id: int, period_label: str, due: date, audio: bytes) -> str:
+    """Save one audio per period; return relative path (e.g. child_1_Semaine_4_20260114.mp3)."""
+    root = _media_dir()
+    safe_period = "".join(c if c.isalnum() or c in " _-" else "_" for c in period_label).strip()[:40]
+    safe_name = f"child_{child_id}_{safe_period}_{due.isoformat().replace('-', '')}.mp3"
     file_path = root / safe_name
     file_path.write_bytes(audio)
     return safe_name
@@ -249,12 +333,19 @@ def _send_voice_call_twilio(to_phone: str | None, vaccination_id: int) -> bool:
 
 def get_twiml_for_vaccination(db: Session, vaccination_id: int) -> str:
     """
-    Build TwiML XML for a vaccination reminder (used when Twilio fetches the TwiML URL).
-    Uses stored reminder text if we had it; otherwise generates fallback. Returns <Response>...</Response>.
+    Build TwiML for a vaccination reminder (used when Twilio fetches the TwiML URL).
+    If this vaccination has a stored period audio, return <Play> so one voice plays for the whole period.
+    Otherwise fallback to <Say> with single-vaccine text.
     """
     vac = db.query(ChildVaccination).filter(ChildVaccination.id == vaccination_id).first()
     if not vac:
         return '<?xml version="1.0" encoding="UTF-8"?><Response><Say language="fr-FR">Rappel non trouvé.</Say></Response>'
+    if vac.reminder_audio_path and settings.app_base_url:
+        audio_url = f"{settings.app_base_url.rstrip('/')}/reminders/audio/{vaccination_id}"
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            f'<Response><Play>{audio_url}</Play></Response>'
+        )
     child = vac.child
     parent = child.parent
     lang = (parent.preferred_language or "fr").strip().lower() or "fr"
@@ -266,9 +357,7 @@ def get_twiml_for_vaccination(db: Session, vaccination_id: int) -> str:
         vaccine_name=vac.vaccine_name,
         due_date_str=_format_date_readable(due_date),
     )
-    # Escape for XML
     text_escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
-    # Twilio language codes
     twilio_lang = {"ar": "ar", "fr": "fr-FR", "en": "en-US"}.get(lang, "fr-FR")
     return (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -285,65 +374,89 @@ def _process_reminders_for_vaccinations(
     vaccinations: list[ChildVaccination],
     media_root: Path,
 ) -> list[dict[str, Any]]:
-    """Generate text, voice, save audio, send email/SMS, mark reminder_sent for each vaccination. Returns list of sent items."""
+    """
+    Group vaccinations by (child_id, period_label, due_date). For each group generate
+    one combined text, one audio, assign same path to all vacs in group, send one email/SMS/call.
+    Returns list of sent items (one per period group).
+    """
     today = date.today()
     sent: list[dict[str, Any]] = []
+
+    # Group by (child_id, period_label, due_date)
+    groups: dict[tuple[int, str, date], list[ChildVaccination]] = {}
     for vac in vaccinations:
-        child = vac.child
+        due = vac.due_date or today
+        key = (vac.child_id, vac.period_label, due)
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(vac)
+
+    for (_child_id, period_label, due_date), group in groups.items():
+        vac0 = group[0]
+        child = vac0.child
         parent = child.parent
         child_name = child.name
-        vaccine_name = vac.vaccine_name
-        due_date = vac.due_date or today
+        vaccine_names = [v.vaccine_name for v in group]
         lang = (parent.preferred_language or "fr").strip().lower() or "fr"
         if lang not in ("ar", "fr", "en"):
             lang = "fr"
 
         try:
-            text = _generate_reminder_text_minimax(lang, child_name, vaccine_name, due_date)
+            text = _generate_reminder_text_for_period(
+                lang, child_name, period_label, vaccine_names, due_date
+            )
         except Exception:
-            text = _FALLBACK_REMINDERS.get(lang, _FALLBACK_REMINDERS["fr"]).format(
+            vaccine_list = ", ".join(vaccine_names)
+            text = _FALLBACK_REMINDERS_PERIOD.get(lang, _FALLBACK_REMINDERS_PERIOD["fr"]).format(
                 child_name=child_name,
-                vaccine_name=vaccine_name,
+                period_label=period_label,
+                vaccine_list=vaccine_list,
                 due_date_str=_format_date_readable(due_date),
             )
 
         audio = _generate_voice_elevenlabs(text, lang)
         reminder_audio_path: str | None = None
         if audio is not None:
-            vac.voice_sent = True
-            reminder_audio_path = _save_reminder_audio(vac.id, audio)
-            vac.reminder_audio_path = reminder_audio_path
+            reminder_audio_path = _save_reminder_audio_period(
+                vac0.child_id, period_label, due_date, audio
+            )
+            for v in group:
+                v.voice_sent = True
+                v.reminder_audio_path = reminder_audio_path
             full_path = media_root / reminder_audio_path
             if settings.email_reminders_enabled and parent.email:
-                subject = f"Rappel vaccin: {vaccine_name} pour {child_name}"
+                subject = f"Rappel vaccins: {period_label} pour {child_name}"
                 _send_email_with_attachment(
                     parent.email,
                     subject,
                     text,
                     full_path if full_path.exists() else None,
-                    attachment_filename=f"rappel_{vaccine_name}_{child_name}.mp3".replace(" ", "_"),
+                    attachment_filename=f"rappel_{period_label}_{child_name}.mp3".replace(" ", "_"),
                 )
         else:
             if settings.email_reminders_enabled and parent.email:
-                subject = f"Rappel vaccin: {vaccine_name} pour {child_name}"
+                subject = f"Rappel vaccins: {period_label} pour {child_name}"
                 _send_email_with_attachment(parent.email, subject, text, None)
 
         _send_sms_twilio(parent.phone_number, text)
         if settings.twilio_voice_enabled:
-            _send_voice_call_twilio(parent.phone_number, vac.id)
+            _send_voice_call_twilio(parent.phone_number, vac0.id)
 
-        vac.reminder_sent = True
+        for v in group:
+            v.reminder_sent = True
         db.commit()
 
         item: dict[str, Any] = {
             "child_name": child_name,
-            "vaccine_name": vaccine_name,
+            "vaccine_name": ", ".join(vaccine_names),
+            "vaccine_names": vaccine_names,
+            "period_label": period_label,
             "due_date": str(due_date),
             "text": text,
         }
         if reminder_audio_path:
             item["reminder_audio_path"] = reminder_audio_path
-            item["audio_url"] = f"/reminders/audio/{vac.id}"
+            item["audio_url"] = f"/reminders/audio/{vac0.id}"
         sent.append(item)
     return sent
 

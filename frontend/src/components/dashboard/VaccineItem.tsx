@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react'
 import type { TimelineItem } from '../../api/children'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { getSchedulePeriodLabel } from '../../utils/schedulePeriodLabel'
 
 const localeMap: Record<string, string> = { en: 'en-US', ar: 'ar-MA', fr: 'fr-FR' }
 
@@ -47,20 +48,17 @@ export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete, groupedByP
   const { locale } = useLanguage()
   const [expanded, setExpanded] = useState(false)
   const { icon: Icon, color, bg } = statusConfig[item.status]
-  const mainLabel = groupedByPeriod ? item.vaccine_name : item.period_label
+  const mainLabel = groupedByPeriod ? item.vaccine_name : getSchedulePeriodLabel(item.period_label, t)
 
   return (
     <div
       className={`rounded-xl border p-3 transition-all ${expanded ? 'border-teal-200 bg-teal-50/50' : 'border-gray-100 bg-white'}`}
     >
       <div className="flex items-center gap-3">
-        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${bg}`}>
-          <Icon className={`w-5 h-5 ${color}`} />
-        </div>
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between text-start min-w-0"
+          className="flex-1 flex items-center justify-between text-start min-w-0 min-h-0"
         >
           <span className="font-medium text-gray-800">{mainLabel}</span>
           {expanded ? (
@@ -70,15 +68,28 @@ export const VaccineItem: FC<VaccineItemProps> = ({ item, onComplete, groupedByP
           )}
         </button>
         <span className="text-sm text-gray-500 flex-shrink-0">{formatDueDate(item.due_date, t, locale)}</span>
-        {!item.completed && item.remindable && (
+        {item.completed ? (
+          <div
+            className={`flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium ${bg} ${color} cursor-default`}
+            role="status"
+          >
+            <CheckCircle className="w-4 h-4" />
+            {t('journey.completed')}
+          </div>
+        ) : item.remindable ? (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onComplete(item.id) }}
-            className="flex-shrink-0 px-3 py-1.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700"
+            className={`flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-xl shadow-sm border transition-colors ${
+              item.status === 'overdue'
+                ? 'bg-red-600 hover:bg-red-700 text-white border-red-700/20'
+                : 'bg-teal-600 hover:bg-teal-700 text-white border-teal-700/20'
+            }`}
           >
-            {t('periodRow.done')}
+            <Icon className="w-4 h-4" aria-hidden />
+            {t('journey.markDone')}
           </button>
-        )}
+        ) : null}
       </div>
       {expanded && (
         <div className="mt-3 pt-3 border-t border-gray-100">

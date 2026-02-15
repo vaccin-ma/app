@@ -108,6 +108,8 @@
     "step0Desc": "Commencez par vos informations personnelles",
     "step1Desc": "Ajoutez les informations de votre premier enfant",
     "step2Desc": "Vérifier et confirmer",
+    "parentLabel": "Parent",
+    "childNumber": "Enfant {{n}}",
     "fullName": "Nom complet",
     "fullNamePlaceholder": "Mohammed El Alami",
     "email": "E-mail",
@@ -158,11 +160,14 @@
     "addFirstChild": "Ajoutez votre premier enfant pour commencer le suivi des vaccins",
     "vaccineScheduleFor": "Calendrier vaccinal de {{name}}",
     "upcomingSoon": "À venir",
+    "showFullSchedule": "Voir le calendrier complet",
+    "hideFullSchedule": "Masquer le calendrier complet",
     "timelineLoading": "Chargement du calendrier…",
     "noVaccines": "Aucune vaccination enregistrée."
   },
   "periodRow": {
     "vaccinesInPeriod": "Vaccins de cette période",
+    "statusLabel": "Statut",
     "done": "Fait",
     "openInNewTab": "Ouvrir l'audio",
     "audioNotAvailable": "Rappel vocal non disponible (envoyez les rappels pour générer l'audio)."
@@ -170,6 +175,7 @@
   "addChildModal": {
     "title": "Ajouter un enfant",
     "updateTitle": "Modifier l'enfant",
+    "childNumber": "Enfant {{n}}",
     "name": "Nom",
     "namePlaceholder": "Nom de l'enfant",
     "dateOfBirth": "Date de naissance",
@@ -231,6 +237,20 @@
     "playing": "Lecture en cours…",
     "listenInfo": "Écouter la description",
     "tapToLearn": "Appuyez sur une famille pour en savoir plus"
+  },
+  "schedule": {
+    "Semaine_4": "Semaine 4",
+    "Semaine_8": "Semaine 8",
+    "Semaine_10": "Semaine 10",
+    "Semaine_12": "Semaine 12",
+    "Semaine_16": "Semaine 16",
+    "Semaine_18": "Semaine 18",
+    "Mois_6": "Mois 6",
+    "Mois_9": "Mois 9",
+    "Mois_12": "Mois 12",
+    "Mois_18": "Mois 18",
+    "Annees_5": "Années 5",
+    "Annees_11": "Années 11"
   },
   "admin": {
     "region": "Région",

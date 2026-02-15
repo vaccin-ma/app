@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { TimelineItem as T } from '../../api/children'
 import { PeriodRow } from './PeriodRow'
 
@@ -20,6 +21,7 @@ export const Timeline: FC<TimelineProps> = ({
   childName,
 }) => {
   const { t } = useTranslation()
+  const [showFullSchedule, setShowFullSchedule] = useState(false)
   const grouped = useMemo(() => {
     const map = new Map<string, T[]>()
     for (const item of items) {
@@ -30,8 +32,24 @@ export const Timeline: FC<TimelineProps> = ({
     return Array.from(map.entries())
   }, [items])
 
+  const OVERDUE_SOON_DAYS = 14
+
   const upcomingGroups = useMemo(() => {
-    const upcomingItems = items.filter((v) => v.status === 'upcoming' || v.status === 'due')
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const isInComingSoon = (v: T) => {
+      if (v.status === 'upcoming' || v.status === 'due') return true
+      if (v.status === 'overdue' && v.due_date) {
+        const due = new Date(v.due_date)
+        due.setHours(0, 0, 0, 0)
+        const daysOverdue = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+        return daysOverdue <= OVERDUE_SOON_DAYS
+      }
+      return false
+    }
+
+    const upcomingItems = items.filter(isInComingSoon)
     const byPeriod = new Map<string, T[]>()
     for (const item of upcomingItems) {
       const key = item.period_label
@@ -84,17 +102,40 @@ export const Timeline: FC<TimelineProps> = ({
         </div>
       )}
 
-      <div className="space-y-3">
-        {grouped.map(([periodLabel, groupItems]) => (
-          <PeriodRow
-            key={periodLabel}
-            periodLabel={periodLabel}
-            items={groupItems}
-            onCompletePeriod={onCompletePeriod}
-            defaultCollapsed={true}
-          />
-        ))}
-      </div>
+      {grouped.length > 0 && (
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => setShowFullSchedule((v) => !v)}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 hover:border-teal-400 hover:text-teal-700 hover:bg-teal-50/50 transition-colors font-medium text-sm"
+          >
+            {showFullSchedule ? (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                {t('dashboard.hideFullSchedule')}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                {t('dashboard.showFullSchedule')}
+              </>
+            )}
+          </button>
+          {showFullSchedule && (
+            <div className="space-y-3">
+              {grouped.map(([periodLabel, groupItems]) => (
+                <PeriodRow
+                  key={periodLabel}
+                  periodLabel={periodLabel}
+                  items={groupItems}
+                  onCompletePeriod={onCompletePeriod}
+                  defaultCollapsed={true}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Shield, ArrowRight, ArrowLeft, Eye, EyeOff,
-  User, Mail, Phone, Lock, Baby, Calendar, CheckCircle
+  User, Mail, Lock, Baby, Calendar, CheckCircle
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { register, login, saveToken, updatePreferredLanguage } from '../api/auth'
@@ -15,17 +15,13 @@ import { Logo } from '../components/Logo'
 
 /* ─── types ─── */
 interface ParentData {
-  fullName: string
   email: string
-  phone: string
   regionId: string
   password: string
   confirmPassword: string
 }
 
 interface ChildData {
-  firstName: string
-  lastName: string
   dateOfBirth: string
   gender: string
 }
@@ -102,10 +98,10 @@ const Signup: FC = () => {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [parent, setParent] = useState<ParentData>({
-    fullName: '', email: '', phone: '', regionId: '', password: '', confirmPassword: ''
+    email: '', regionId: '', password: '', confirmPassword: ''
   })
   const [child, setChild] = useState<ChildData>({
-    firstName: '', lastName: '', dateOfBirth: '', gender: ''
+    dateOfBirth: '', gender: ''
   })
   const [regions, setRegions] = useState<Region[]>([])
   const [agreed, setAgreed] = useState(false)
@@ -123,10 +119,10 @@ const Signup: FC = () => {
 
   const canProceed = () => {
     if (step === 0) {
-      return parent.fullName && parent.email && parent.phone && parent.regionId && parent.password && parent.password === parent.confirmPassword
+      return parent.email && parent.regionId && parent.password && parent.password === parent.confirmPassword
     }
     if (step === 1) {
-      return child.firstName && child.lastName && child.dateOfBirth && child.gender
+      return child.dateOfBirth && child.gender
     }
     return agreed
   }
@@ -138,10 +134,10 @@ const Signup: FC = () => {
     setLoading(true)
     try {
       await register({
-        name: parent.fullName,
+        name: t('signup.parentLabel'),
         email: parent.email,
         password: parent.password,
-        phone_number: parent.phone || null,
+        phone_number: null,
         region_id: parent.regionId ? Number(parent.regionId) : null,
       })
       const { access_token, token_type } = await login({
@@ -152,7 +148,7 @@ const Signup: FC = () => {
       updatePreferredLanguage(locale).catch(() => {})
       // Create the child from step 1 so parent + child are linked
       await createChild({
-        name: `${child.firstName} ${child.lastName}`.trim(),
+        name: t('signup.childNumber', { n: 1 }),
         birthdate: child.dateOfBirth,
         gender: child.gender || null,
       })
@@ -234,9 +230,7 @@ const Signup: FC = () => {
               {/* ── Step 1: Parent Info ── */}
               {step === 0 && (
                 <motion.div key="step0" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="space-y-4">
-                  <FormInput icon={User} label={t('signup.fullName')} placeholder={t('signup.fullNamePlaceholder')} value={parent.fullName} onChange={updateParent('fullName')} />
                   <FormInput icon={Mail} label={t('signup.email')} type="email" placeholder="you@example.com" value={parent.email} onChange={updateParent('email')} />
-                  <FormInput icon={Phone} label={t('signup.phone')} type="tel" placeholder="+212 6XX-XXXXXX" value={parent.phone} onChange={updateParent('phone')} />
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.region')}</label>
@@ -269,9 +263,6 @@ const Signup: FC = () => {
                       {t('signup.childDataNote')}
                     </p>
                   </div>
-
-                  <FormInput icon={Baby} label={t('signup.childFirstName')} placeholder={t('signup.childFirstNamePlaceholder')} value={child.firstName} onChange={updateChild('firstName')} />
-                  <FormInput icon={User} label={t('signup.childLastName')} placeholder={t('signup.childLastNamePlaceholder')} value={child.lastName} onChange={updateChild('lastName')} />
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('signup.dateOfBirth')}</label>
@@ -319,9 +310,8 @@ const Signup: FC = () => {
                       <User className="w-4 h-4 text-teal-600" /> {t('signup.parentInfo')}
                     </h3>
                     <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{parent.fullName}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.parentLabel')}</dt><dd className="font-medium text-gray-900">{t('signup.parentLabel')}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.email')}</dt><dd className="font-medium text-gray-900">{parent.email}</dd></div>
-                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.phoneLabel')}</dt><dd className="font-medium text-gray-900">{parent.phone}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.region')}</dt><dd className="font-medium text-gray-900">{regions.find(r => r.id === Number(parent.regionId))?.name ?? '—'}</dd></div>
                     </dl>
                   </div>
@@ -331,7 +321,7 @@ const Signup: FC = () => {
                       <Baby className="w-4 h-4 text-teal-600" /> {t('signup.childInfo')}
                     </h3>
                     <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{child.firstName} {child.lastName}</dd></div>
+                      <div className="flex justify-between"><dt className="text-gray-500">{t('signup.name')}</dt><dd className="font-medium text-gray-900">{t('signup.childNumber', { n: 1 })}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.dateOfBirth')}</dt><dd className="font-medium text-gray-900">{child.dateOfBirth}</dd></div>
                       <div className="flex justify-between"><dt className="text-gray-500">{t('signup.gender')}</dt><dd className="font-medium text-gray-900">{child.gender === 'Boy' ? t('signup.boy') : t('signup.girl')}</dd></div>
                     </dl>

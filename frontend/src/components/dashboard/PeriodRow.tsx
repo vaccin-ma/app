@@ -3,6 +3,7 @@ import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckCircle, AlertTriangle, AlertCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react'
 import type { TimelineItem as T } from '../../api/children'
+import { getSchedulePeriodLabel } from '../../utils/schedulePeriodLabel'
 
 function formatDueDate(d: string | null, t: ReturnType<typeof useTranslation>['t']): string {
   if (!d) return '—'
@@ -72,16 +73,13 @@ export const PeriodRow: FC<PeriodRowProps> = ({
       }`}
     >
       <div className="flex items-center gap-3 p-3">
-        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${bg}`}>
-          <Icon className={`w-5 h-5 ${color}`} />
-        </div>
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
           className="flex-1 flex items-center justify-between text-start min-w-0"
         >
           <span className="font-semibold text-gray-800">
-            {periodLabel}
+            {getSchedulePeriodLabel(periodLabel, t)}
             <span className="text-sm font-normal text-gray-500 ms-2">· {formatDueDate(dueDate, t)}</span>
           </span>
           {expanded ? (
@@ -90,14 +88,33 @@ export const PeriodRow: FC<PeriodRowProps> = ({
             <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
           )}
         </button>
-        {!allCompleted && (
+        {allCompleted ? (
+          <div
+            className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${bg} ${color} cursor-default`}
+            role="status"
+          >
+            <CheckCircle className="w-4 h-4" />
+            {t('journey.completed')}
+          </div>
+        ) : (
           <button
             type="button"
             onClick={handleCompletePeriod}
             disabled={completing}
-            className="flex-shrink-0 px-3 py-1.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-60"
+            className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl shadow-sm border transition-colors disabled:opacity-60 ${
+              status === 'overdue'
+                ? 'bg-red-600 hover:bg-red-700 text-white border-red-700/20'
+                : 'bg-teal-600 hover:bg-teal-700 text-white border-teal-700/20'
+            }`}
           >
-            {completing ? '...' : t('periodRow.done')}
+            {completing ? (
+              <span className="animate-pulse">...</span>
+            ) : (
+              <>
+                <Icon className="w-4 h-4" aria-hidden />
+                {t('journey.markDone')}
+              </>
+            )}
           </button>
         )}
       </div>

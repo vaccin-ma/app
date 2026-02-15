@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Baby, Calendar, User, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Child } from '../../api/children'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { getChildDisplayName } from '../../utils/childDisplayName'
 
 const localeMap: Record<string, string> = { en: 'en-US', ar: 'ar-MA', fr: 'fr-FR' }
 
@@ -40,7 +41,7 @@ export const ChildCard: FC<ChildCardProps> = ({
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
             <User className="w-4 h-4 text-teal-600" />
-            {child.name}
+            {getChildDisplayName(child.name, t)}
           </h3>
           <p className="text-gray-600 text-sm mt-1 flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-gray-400" />

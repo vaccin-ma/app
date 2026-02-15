@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { CheckCircle, Clock, AlertTriangle, Volume2, Calendar } from 'lucide-react'
 import clsx from 'clsx'
 import type { TimelineItem } from '../../api/children'
+import { getSchedulePeriodLabel } from '../../utils/schedulePeriodLabel'
 
 const localeMap: Record<string, string> = { en: 'en-US', ar: 'ar-MA', fr: 'fr-FR' }
 
@@ -120,23 +121,9 @@ export const VaccineCard: FC<VaccineCardProps> = ({
             : 'border-gray-200/60',
         )}
       >
-        {/* header row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <Icon
-              className={clsx(
-                'w-5 h-5',
-                status === 'completed' && 'text-teal-500',
-                status === 'current' && 'text-orange-500',
-                status === 'overdue' && 'text-red-500',
-                status === 'upcoming' && 'text-gray-400',
-              )}
-            />
-            <h3 className="font-bold text-gray-900">{periodLabel}</h3>
-          </div>
-          <span className={clsx('text-xs font-medium px-2.5 py-1 rounded-full', style.badge)}>
-            {t(style.badgeText)}
-          </span>
+        {/* header — period name only; status lives in the one button/badge below */}
+        <div className="mb-3">
+          <h3 className="font-bold text-gray-900">{getSchedulePeriodLabel(periodLabel, t)}</h3>
         </div>
 
         {/* due date row */}
@@ -185,21 +172,33 @@ export const VaccineCard: FC<VaccineCardProps> = ({
           ))}
         </div>
 
-        {/* action buttons */}
+        {/* one control: button (icon + Mark as Done) or completed badge */}
         <div className="flex items-center gap-2 flex-wrap">
-          {incompleteIds.length > 0 && (
+          {incompleteIds.length > 0 ? (
             <button
               type="button"
               onClick={() => onComplete(incompleteIds)}
               className={clsx(
-                'px-4 py-2 text-sm font-semibold rounded-xl transition-colors',
+                'inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors shadow-sm border',
                 status === 'overdue'
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm shadow-teal-500/20',
+                  ? 'bg-red-600 hover:bg-red-700 text-white border-red-700/30'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-500/20 border-teal-700/20',
               )}
             >
+              <Icon className="w-4 h-4 text-white" aria-hidden />
               {t('journey.markDone')}
             </button>
+          ) : (
+            <div
+              className={clsx(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-default',
+                style.badge,
+              )}
+              role="status"
+            >
+              <CheckCircle className="w-4 h-4 text-teal-600" />
+              {t('journey.completed')}
+            </div>
           )}
           {isCurrent && (
             <button

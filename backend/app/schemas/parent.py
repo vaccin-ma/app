@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class ParentCreate(BaseModel):
-    name: str
+    name: str | None = None  # Defaults to "Parent" if omitted
     email: EmailStr
     password: str = Field(..., min_length=1, max_length=256)
     phone_number: str | None = None

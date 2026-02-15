@@ -108,6 +108,8 @@
         "step0Desc": "ابدأ ببياناتك الشخصية",
         "step1Desc": "أضف معلومات طفلك الأول",
         "step2Desc": "مراجعة وتأكيد",
+        "parentLabel": "ولي الأمر",
+        "childNumber": "طفل {{n}}",
         "fullName": "الاسم الكامل",
         "fullNamePlaceholder": "محمد العلمي",
         "email": "البريد الإلكتروني",
@@ -158,17 +160,21 @@
         "addFirstChild": "أضف طفلك الأول لبدء تتبع اللقاحات",
         "vaccineScheduleFor": "جدول لقاحات {{name}}",
         "upcomingSoon": "القادم قريباً",
+        "showFullSchedule": "عرض الجدول الكامل",
+        "hideFullSchedule": "إخفاء الجدول الكامل",
         "timelineLoading": "جاري تحميل الجدول...",
         "noVaccines": "لا توجد لقاحات مسجلة."
     },
     "periodRow": {
         "vaccinesInPeriod": "اللقاحات في هذه الفترة",
+        "statusLabel": "الحالة",
         "done": "تم",
         "openInNewTab": "فتح الصوت",
         "audioNotAvailable": "التذكير الصوتي غير متوفر (أرسل التذكيرات لإنشاء الصوت)."
     },
     "addChildModal": {
         "title": "إضافة طفل جديد",
+        "childNumber": "طفل {{n}}",
         "name": "الاسم",
         "namePlaceholder": "اسم الطفل",
         "dateOfBirth": "تاريخ الميلاد",
@@ -222,6 +228,20 @@
         "playing": "جاري التشغيل…",
         "listenInfo": "استمع إلى الوصف",
         "tapToLearn": "اضغط على عائلة لمعرفة المزيد"
+    },
+    "schedule": {
+        "Semaine_4": "الأسبوع 4",
+        "Semaine_8": "الأسبوع 8",
+        "Semaine_10": "الأسبوع 10",
+        "Semaine_12": "الأسبوع 12",
+        "Semaine_16": "الأسبوع 16",
+        "Semaine_18": "الأسبوع 18",
+        "Mois_6": "الشهر 6",
+        "Mois_9": "الشهر 9",
+        "Mois_12": "الشهر 12",
+        "Mois_18": "الشهر 18",
+        "Annees_5": "السنة 5",
+        "Annees_11": "السنة 11"
     },
     "admin": {
         "region": "المنطقة",
