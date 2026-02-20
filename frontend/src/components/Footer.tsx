@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Heart, Mail, Phone, MapPin } from 'lucide-react'
+import { Mail, Phone, MapPin } from 'lucide-react'
 import { Logo } from './Logo'
 
 const Footer = () => {

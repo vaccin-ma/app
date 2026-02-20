@@ -15,7 +15,7 @@ export class MapErrorBoundary extends Component<Props, State> {
     this.state = { hasError: false }
   }
 
-  static getDerivedStateFromError(error: unknown) {
+  static getDerivedStateFromError(_error: unknown) {
     return { hasError: true }
   }
 

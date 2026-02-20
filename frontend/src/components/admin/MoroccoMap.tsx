@@ -1,4 +1,4 @@
-import { type FC } from 'react'
+import React, { type FC } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useTranslation } from 'react-i18next'
@@ -39,15 +39,19 @@ export const MoroccoMap: FC<MoroccoMapProps> = ({ data, hoveredRegion, onHover }
   return (
     <div className="w-full h-[600px] rounded-xl overflow-hidden border border-gray-200 shadow-sm relative z-0">
        <MapContainer
-        center={[29.5, -7.0]} // Visual center of Morocco
-        zoom={5}
-        scrollWheelZoom={true} // Enable scroll zoom for "real map" feel
-        style={{ height: '100%', width: '100%' }}
-        className="z-0"
+        {...{
+          center: [29.5, -7.0] as [number, number],
+          zoom: 5,
+          scrollWheelZoom: true,
+          style: { height: '100%', width: '100%' },
+          className: 'z-0',
+        } as React.ComponentProps<typeof MapContainer>}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          {...{
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          } as React.ComponentProps<typeof TileLayer>}
         />
         
         {data.map((region) => {
@@ -61,18 +65,20 @@ export const MoroccoMap: FC<MoroccoMapProps> = ({ data, hoveredRegion, onHover }
           return (
             <CircleMarker
               key={region.name}
-              center={coords}
-              pathOptions={{
-                color: isHovered ? '#1F2937' : 'white', // Border color
-                fillColor: color,
-                fillOpacity: isHovered ? 0.9 : 0.7,
-                weight: isHovered ? 3 : 2,
-              }}
-              radius={isHovered ? 18 : 14} // Points "highlight" by growing
-              eventHandlers={{
-                mouseover: () => onHover(region.name),
-                mouseout: () => onHover(null),
-              }}
+              {...{
+                center: coords,
+                pathOptions: {
+                  color: isHovered ? '#1F2937' : 'white',
+                  fillColor: color,
+                  fillOpacity: isHovered ? 0.9 : 0.7,
+                  weight: isHovered ? 3 : 2,
+                },
+                radius: isHovered ? 18 : 14,
+                eventHandlers: {
+                  mouseover: () => onHover(region.name),
+                  mouseout: () => onHover(null),
+                },
+              } as React.ComponentProps<typeof CircleMarker>}
             >
               <Popup>
                 <div className="p-1 min-w-[140px]">
