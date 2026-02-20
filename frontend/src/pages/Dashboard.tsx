@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import type { FC } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Baby, Plus, LogOut, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Baby, Plus, LogOut, ChevronRight, Menu, X, Globe } from 'lucide-react'
 import { AUTH_KEYS, clearToken } from '../api/auth'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -25,6 +25,7 @@ const Dashboard: FC = () => {
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editChild, setEditChild] = useState<Child | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const { dir } = useLanguage()
   const { t } = useTranslation()
@@ -57,29 +58,109 @@ const Dashboard: FC = () => {
     <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50/20 to-blue-50/20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Logo className="h-16 w-auto object-contain" />
-            <div className="flex items-center gap-3">
-              <LanguageSwitcher />
+            <Logo className="h-10 sm:h-16 w-auto object-contain flex-shrink-0" />
+            
+            {/* Right side navigation */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Notification Bell - always visible */}
               <NotificationBell
                 onViewTimeline={(childId) => {
                   const child = children.find((c) => c.id === childId)
                   if (child) setSelectedChild(child)
                 }}
               />
+              
+              {/* Desktop only items */}
+              <div className="hidden sm:flex items-center gap-3">
+                <LanguageSwitcher />
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>{t('nav.logOut')}</span>
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
               <button
                 type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
+                className="sm:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
               >
-                <LogOut className="w-5 h-5" />
-                <span>{t('nav.logOut')}</span>
+                <Menu className="w-6 h-6" />
               </button>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 z-50 sm:hidden"
+            />
+            
+            {/* Slide-out Menu */}
+            <motion.div
+              initial={{ x: dir === 'rtl' ? '-100%' : '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: dir === 'rtl' ? '-100%' : '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className={`fixed top-0 ${dir === 'rtl' ? 'left-0' : 'right-0'} h-full w-72 bg-white shadow-2xl z-50 sm:hidden`}
+            >
+              {/* Menu Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <Logo className="h-10 w-auto" />
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Menu Items */}
+              <div className="p-4 space-y-4">
+                {/* Language */}
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Globe className="w-5 h-5 text-teal-600" />
+                    <span className="font-medium text-gray-700">{t('nav.language')}</span>
+                  </div>
+                  <LanguageSwitcher />
+                </div>
+              </div>
+
+              {/* Logout Button at Bottom */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    handleLogout()
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl transition-colors font-medium"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>{t('nav.logOut')}</span>
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <motion.h1

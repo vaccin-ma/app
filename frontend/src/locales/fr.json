@@ -5,7 +5,9 @@
     "about": "À propos",
     "signIn": "Connexion",
     "dashboard": "Tableau de bord",
-    "logOut": "Déconnexion"
+    "logOut": "Déconnexion",
+    "language": "Langue",
+    "notifications": "Notifications"
   },
   "hero": {
     "badge": "Approuvé par les familles marocaines",

@@ -5,7 +5,9 @@
         "about": "About",
         "signIn": "Sign In",
         "dashboard": "Dashboard",
-        "logOut": "Log Out"
+        "logOut": "Log Out",
+        "language": "Language",
+        "notifications": "Notifications"
     },
     "hero": {
         "badge": "Trusted by Moroccan families",
