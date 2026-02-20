@@ -72,5 +72,13 @@ class Settings(BaseSettings):
     # Set to true to replace vaccine_templates and child_vaccinations with current SCHEDULE on startup (one-time)
     replace_vaccine_templates: bool = False
 
+    # Set to true to seed fake demo data (parents, children, vaccinations) on startup
+    seed_fake_data: bool = False
+
+    # Default admin credentials (created on first startup if no admin exists)
+    admin_email: str = "admin@jelba.ma"
+    admin_password: str = "change-this-password"
+    admin_name: str = "Admin Jelba"
+
 
 settings = Settings()

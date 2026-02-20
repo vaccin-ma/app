@@ -27,9 +27,14 @@ seed_regions()
 from app.services.seed_national_stock import seed_national_stock
 seed_national_stock()
 
-# Seed realistic demo data: parents, children, vaccinations (skips if already present)
-from app.services.seed_fake_data import seed_fake_data
-seed_fake_data()
+# Seed realistic demo data: parents, children, vaccinations (only if SEED_FAKE_DATA=true)
+if settings.seed_fake_data:
+    from app.services.seed_fake_data import seed_fake_data
+    seed_fake_data()
+
+# Seed default admin user (skips if an admin already exists)
+from app.services.seed_admin import seed_admin
+seed_admin()
 
 app = FastAPI(
     title="Vaccine Reminder API",
